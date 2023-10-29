@@ -28,6 +28,11 @@ def upload_dpsreport(file_to_upload):
     if response.status_code != 200:
         print(get_current_time(),"An error has occured while uploadng to dps.report, aborting...")
         print(get_current_time(),"Errorcode:",response.status_code)
+        if response.status_code == 403:
+            print(get_current_time(),"Most likely ratelimited: Retrying in 30 seconds.")
+            sleep(60)
+            # this could be a recursive hellscape
+            upload_dpsreport(file_to_upload)
         return False
 
     data = response.json()
