@@ -47,7 +47,7 @@ def upload_dpsreport(file_to_upload):
 
 seen_files = set()
 
-path = "/run/media/anni/fc6b50db-900a-4258-a804-2770b5997a13/SteamLibrary/steamapps/compatdata/1284210/pfx/drive_c/users/steamuser/Documents/Guild Wars 2/addons/arcdps/arcdps.cbtlogs/"
+path = "."
 polling_interval = 2
 
 initial_run = True
