@@ -7,7 +7,7 @@ from watchdog.events import LoggingEventHandler
 from datetime import datetime
 
 # ADD YOUR PATH HERE
-path = "."
+path = "/run/media/anni/fc6b50db-900a-4258-a804-2770b5997a13/SteamLibrary/steamapps/compatdata/1284210/pfx/drive_c/users/steamuser/Documents/Guild Wars 2/addons/arcdps/arcdps.cbtlogs/"
 
 
 def upload_wingman(dps_link):
@@ -30,7 +30,7 @@ def upload_dpsreport(file_to_upload):
         print(get_current_time(),"Errorcode:",response.status_code)
         if response.status_code == 403:
             print(get_current_time(),"Most likely ratelimited: Retrying in 30 seconds.")
-            sleep(60)
+            sleep(30)
             # this could be a recursive hellscape
             upload_dpsreport(file_to_upload)
         return False
@@ -47,8 +47,7 @@ def get_current_time():
     ts = "["+ts+"]"
     return ts
 
-def on_created(event):
-    
+def on_created(event):    
     print(get_current_time(),f"{event.src_path} has been created.")
     if event.src_path[-6:] != ".zevtc":
         print(get_current_time(),"Ignoring because this is not an arcdps log.")
@@ -64,12 +63,17 @@ def on_created(event):
 def on_deleted(event):
     print(get_current_time(),f"Deleted {event.src_path}.")
 
+def on_modified(event):
+    on_created(event)
 
+def on_moved(event):
+    on_created(event)
 # I thought it would make sense to write a log but I also realized its kind of pointless lmao. Then i ended up doing printf debugging 
 # and have somehwat of a log anyways now. sigh.
 eventhandler = LoggingEventHandler()
 eventhandler.on_created = on_created
 eventhandler.on_deleted = on_deleted
+eventhandler.on_moved = on_moved
 
 go_recursively = True
 observer = Observer()
@@ -78,7 +82,7 @@ observer.start()
 
 try:
     while True:
-        time.sleep(1)
+        time.sleep(0.1)
 except KeyboardInterrupt:
     observer.stop()
     observer.join()
