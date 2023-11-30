@@ -2,6 +2,7 @@ import os
 import time
 import requests
 from datetime import datetime
+import json
 
 start_time = time.time()
 seen_files = set()
@@ -28,7 +29,6 @@ def upload_dpsreport(file_to_upload):
     data = {'json': '1', 'generator': 'ei'}
 
     response = requests.post(url, files=files, data=data)
-
     if response.status_code != 200:
         print(get_current_time(),"An error has occured while uploadng to dps.report, aborting...")
         print(get_current_time(),"Errorcode:",response.status_code)
