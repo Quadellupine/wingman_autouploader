@@ -37,21 +37,21 @@ def upload_wingman(dps_link):
     print(get_current_time(),data['note'])
 
 
-def upload_dpsreport(file_to_upload):
-    url = "https://dps.report/uploadContent"
+def upload_dpsreport(file_to_upload, domain):
+    if domain == "a":
+        url = "https://dps.report/uploadContent"
+    elif domain == "b":
+        url = "https://b.dps.report/uploadContent"
     files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
     data = {'json': '1', 'generator': 'ei'}
 
     response = requests.post(url, files=files, data=data)
 
     if response.status_code != 200:        
-        print(get_current_time(),"An error has occured while uploadng to dps.report, aborting...")
+        print(get_current_time(),"An error has occured while uploadng to dps.report")
         print(get_current_time(),"Errorcode:",response.status_code)
-        if response.status_code == 403:
-            print(get_current_time(),"Most likely ratelimited: Retrying in 30 seconds.")
-            time.sleep(30)
-            # this could be a recursive hellscape
-            upload_dpsreport(file_to_upload)
+        if response.status_code == 403 and domain=="a":
+            upload_dpsreport(file_to_upload, "b")
         return False, "skip"
 
     data = response.json()
@@ -114,17 +114,15 @@ while True:
                 # Select only files that we havent seen before and that are created after starttime of the program
                 if file_path not in seen_files and file_mtime > start_time:
                     print(get_current_time(),"New file detected:",file)
-                    # Make sure to not somehow upload the same file twice (failsafe, dont know if necessary)
                     seen_files.add(file_path)
-                    # Upload to dps.report
-                    success_value, dps_link = upload_dpsreport(file_path)
+                    success_value, dps_link = upload_dpsreport(file_path,"a")
                     if dps_link == "skip":
                         continue
                     all_links.append(dps_link+"\n")
                     print(get_current_time(),"Success:",success_value)
                     # --------- Append to text content --------
                     if dps_link != dps_link_old:
-                        # Only printing successful logs to GUI
+                        # Only printing successful logs to GUI or if the user wants wipes
                         checkbox_status = values['s1']
                         if success_value or checkbox_status:
                             text_content += dps_link+ "\n"
