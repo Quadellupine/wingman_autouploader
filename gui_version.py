@@ -4,8 +4,19 @@ import requests
 from datetime import datetime
 import PySimpleGUI as sg
 import pyperclip
-from tkinter import ttk
+import configparser
+# Load configuration
+config = configparser.ConfigParser()
+config_file_path = "config.ini"
 
+if os.path.exists(config_file_path):
+    config.read(config_file_path)
+    checkbox_default = config.getboolean('Settings', 'ShowWipes')
+else:
+    with open("config.ini", 'w') as file:
+    # Write content to the file
+        file.write("[Settings]\nshowwipes = False")
+    checkbox_default = False
 
 start_time = time.time()
 seen_files = set()
@@ -32,10 +43,8 @@ def upload_dpsreport(file_to_upload):
     data = {'json': '1', 'generator': 'ei'}
 
     response = requests.post(url, files=files, data=data)
-    json_data = response.json()
-    success_value = json_data.get('encounter', {}).get('success')
 
-    if response.status_code != 200:
+    if response.status_code != 200:        
         print(get_current_time(),"An error has occured while uploadng to dps.report, aborting...")
         print(get_current_time(),"Errorcode:",response.status_code)
         if response.status_code == 403:
@@ -43,11 +52,12 @@ def upload_dpsreport(file_to_upload):
             time.sleep(30)
             # this could be a recursive hellscape
             upload_dpsreport(file_to_upload)
-        return False
+        return False, "skip"
 
     data = response.json()
     print(get_current_time(),"permalink:", data['permalink'])
     dps_link = data['permalink']
+    success_value = data.get('encounter', {}).get('success')
     return success_value, dps_link
 
 def check_success(url):
@@ -64,26 +74,25 @@ def check_success(url):
 seen_files = set()
 
 path = "."
-polling_interval = 2
 
 initial_run = True
 
 # ----------------  Create Form  ----------------
 sg.theme("Dark Teal 10")
-sg.set_options(element_padding=(0, 0))
-default_color = sg.theme_background_color()
-button_color_options = (default_color,default_color)
+
 workingdir = os.getcwd()
 
 layout = [
-    [sg.Text("Watching "+workingdir+" for new logs\n", justification='center')],
-    [sg.Multiline('', size=(80, 40), key='text', autoscroll=True, disabled=True)],
-         [sg.Button("Exit",pad=((10, 10), (10, 10)),size=(15,2)),
-          sg.Button("Copy last to Clipboard",pad=((10, 10), (10, 10)),size=(20,2)),
-          sg.Button("Copy all to Clipboard",pad=((10, 10), (10, 10)),size=(20,2))
-          ]]
+    [sg.Text("Watching " + workingdir + " for new logs\nThe program will be unresponsive while an upload is in progress, don't\n worry about it.", justification='center')],
+    [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)],
+    [sg.Button("Exit", size=(26, 2)),
+     sg.Button("Copy last to Clipboard", size=(26, 2))],
+     [sg.Button("Copy all to Clipboard", size=(26, 2)),
+     sg.Button("Copy all to Clipboard incl Wipes", size=(26, 2))],
+     [sg.Checkbox("Show wipes", key='s1', default=checkbox_default)]
+]
 
-window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=False, keep_on_top=False, grab_anywhere=True)
+window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,500))
 
 
 
@@ -91,42 +100,59 @@ window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=
 text_content = ""
 dps_link_old = ""
 dps_link = ""
+all_links=[]
 while True:
     # --------- Read and update window --------
-    event, values = window.read(timeout=1000)
+    event, values = window.read(timeout=10)
     # --- Do evtc logic
+    # Find all files
     for root, _, files in os.walk(path):
         for file in files:
-            #print(file)
+            # Find all files with zevtc extension
             if file.endswith(".zevtc"):
                 file_path = os.path.join(root, file)
                 file_mtime = os.path.getmtime(file_path)
-                if file_path not in seen_files and file_mtime != start_time:
+                # Select only files that we havent seen before and that are created after starttime of the program
+                if file_path not in seen_files and file_mtime > start_time:
                     print(get_current_time(),"New file detected:",file)
-                    # Make sure to not somehow upload the same file twice
+                    # Make sure to not somehow upload the same file twice (failsafe, dont know if necessary)
                     seen_files.add(file_path)
                     # Upload to dps.report
                     success_value, dps_link = upload_dpsreport(file_path)
+                    if dps_link == "skip":
+                        continue
+                    all_links.append(dps_link+"\n")
                     print(get_current_time(),"Success:",success_value)
-                    # Only upload to wingman if it wasnt a wipe/check whether it was
+                    # --------- Append to text content --------
+                    if dps_link != dps_link_old:
+                        # Only printing successful logs to GUI
+                        checkbox_status = values['s1']
+                        if success_value or checkbox_status:
+                            text_content += dps_link+ "\n"
+                            window['text'].update(value=text_content)
+                        dps_link_old = dps_link
+                    # Only uploading successful logs to wingman
                     if success_value:
                         upload_wingman(dps_link)
                     else:
                         print(get_current_time(),"Not pushing wipes to wingman")
-    
-            # --------- Append to text content --------
-            if dps_link != dps_link_old:
-                text_content += dps_link+ "\n"
-                window['text'].update(value=text_content)
-                dps_link_old = dps_link
+
             
             
     # -- Check for events --
     if event == sg.WIN_CLOSED or event == 'Exit':
+        config['Settings'] = {'ShowWipes': str(values['s1'])}
+        with open(config_file_path, 'w') as configfile:
+            config.write(configfile)
         break
     elif event == "Copy last to Clipboard":
-        pyperclip.copy(dps_link)
+        lines = text_content.split('\n')
+        pyperclip.copy(lines[-2])
+        print(lines)
     elif event == "Copy all to Clipboard":
-        pyperclip.copy(text_content)
-
-    #time.sleep(polling_interval)
+        lines = text_content.split('\n')
+        s = ''.join(lines)
+        pyperclip.copy(s)
+    elif event == "Copy all to Clipboard incl Wipes":
+        s = "".join(all_links)
+        pyperclip.copy(s)
