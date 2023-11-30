@@ -2,6 +2,7 @@ import os
 import time
 import requests
 from datetime import datetime
+import PySimpleGUI as sg
 
 start_time = time.time()
 seen_files = set()
@@ -34,7 +35,7 @@ def upload_dpsreport(file_to_upload):
         print(get_current_time(),"Errorcode:",response.status_code)
         if response.status_code == 403:
             print(get_current_time(),"Most likely ratelimited: Retrying in 30 seconds.")
-            sleep(30)
+            time.sleep(30)
             # this could be a recursive hellscape
             upload_dpsreport(file_to_upload)
         return False
@@ -52,7 +53,25 @@ polling_interval = 2
 
 initial_run = True
 
+# ----------------  Create Form  ----------------
+sg.theme('Dark Blue')
+sg.set_options(element_padding=(0, 0))
 
+layout = [[sg.Multiline('', size=(40, 20), key='text', autoscroll=True)],
+         [sg.Button('Exit')]]
+
+# --- systray
+menu_def = ['BLANK', ['&Open', '&Save', '---', '&Exit']]
+
+system_tray = sg.SystemTray(menu=menu_def, filename=r'icon.png', tooltip='Autouploader')
+window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=False, keep_on_top=False, grab_anywhere=True)
+
+
+
+# ----------------  Main Loop  ----------------
+text_content = "Welcome!\n"
+counter = 0
+dps_link=""
 while True:
     for root, _, files in os.walk(path):
         for file in files:
@@ -64,5 +83,20 @@ while True:
                     seen_files.add(file_path)
                     dps_link = upload_dpsreport(file_path) 
                     upload_wingman(dps_link)
+    
+    # --------- Read and update window --------
+    event, values = window.read(timeout=10)
+    
+    # --------- Append to text content --------
+    if dps_link:
+        text_content = dps_link+ "\n"
+    
+    # --------- Update Multiline element --------
+    window['text'].update(value=text_content)
+    
+    # -- Check for events --
+    if event == sg.WIN_CLOSED or event == 'Exit':
+        break
+    counter = counter+1
 
     time.sleep(polling_interval)
