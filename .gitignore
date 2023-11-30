@@ -2,3 +2,8 @@
 test.py
 evtc.py
 testlogs/
+__pycache__/
+build/
+dist/
+.git/
+

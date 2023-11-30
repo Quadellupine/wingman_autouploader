@@ -60,10 +60,6 @@ sg.set_options(element_padding=(0, 0))
 layout = [[sg.Multiline('', size=(40, 20), key='text', autoscroll=True)],
          [sg.Button('Exit')]]
 
-# --- systray
-menu_def = ['BLANK', ['&Open', '&Save', '---', '&Exit']]
-
-system_tray = sg.SystemTray(menu=menu_def, filename=r'icon.png', tooltip='Autouploader')
 window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=False, keep_on_top=False, grab_anywhere=True)
 
 
@@ -71,7 +67,8 @@ window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=
 # ----------------  Main Loop  ----------------
 text_content = "Welcome!\n"
 counter = 0
-dps_link=""
+dps_link_old = ""
+dps_link = ""
 while True:
     for root, _, files in os.walk(path):
         for file in files:
@@ -88,7 +85,7 @@ while True:
     event, values = window.read(timeout=10)
     
     # --------- Append to text content --------
-    if dps_link:
+    if dps_link != dps_link_old:
         text_content = dps_link+ "\n"
     
     # --------- Update Multiline element --------

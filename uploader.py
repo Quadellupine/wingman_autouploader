@@ -34,7 +34,7 @@ def upload_dpsreport(file_to_upload):
         print(get_current_time(),"Errorcode:",response.status_code)
         if response.status_code == 403:
             print(get_current_time(),"Most likely ratelimited: Retrying in 30 seconds.")
-            sleep(30)
+            os.sleep(30)
             # this could be a recursive hellscape
             upload_dpsreport(file_to_upload)
         return False
@@ -51,7 +51,6 @@ path = "."
 polling_interval = 2
 
 initial_run = True
-
 
 while True:
     for root, _, files in os.walk(path):
