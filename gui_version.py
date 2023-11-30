@@ -83,7 +83,6 @@ sg.theme("Dark Teal 10")
 workingdir = os.getcwd()
 
 layout = [
-    [sg.Text("Watching " + workingdir + " for new logs\nThe program will be unresponsive while an upload is in progress, don't\n worry about it.", justification='center')],
     [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)],
     [sg.Button("Exit", size=(26, 2)),
      sg.Button("Copy last to Clipboard", size=(26, 2))],
@@ -92,7 +91,7 @@ layout = [
      [sg.Checkbox("Show wipes", key='s1', default=checkbox_default)]
 ]
 
-window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,500))
+window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,450))
 
 
 
