@@ -84,7 +84,7 @@ workingdir = os.getcwd()
 layout = [
     [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)],
     [sg.Button("Exit", size=(26, 2)),
-     sg.Button("Copy last to Clipboard", size=(26, 2),button_color=('white', 'green'))],
+     sg.Button("Copy last to Clipboard", size=(26, 2))],
      [sg.Button("Copy all to Clipboard", size=(26, 2)),
      sg.Button("Copy all to Clipboard incl Wipes", size=(26, 2))],
      [sg.Checkbox("Show wipes", key='s1', default=checkbox_default)]
