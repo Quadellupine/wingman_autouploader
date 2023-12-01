@@ -18,6 +18,8 @@ else:
     with open("config.ini", 'w') as file:
     # Write content to the file
         file.write("[Settings]\nshowwipes = False\nlogpath=.")
+        file.close()
+        config.read(config_file_path)
         path="."
     checkbox_default = False
 start_time = time.time()
