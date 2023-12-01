@@ -8,4 +8,5 @@ dist/
 .git/
 test.py
 config.ini
+*.spec
 

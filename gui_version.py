@@ -12,12 +12,13 @@ config_file_path = "config.ini"
 if os.path.exists(config_file_path):
     config.read(config_file_path)
     checkbox_default = config.getboolean('Settings', 'ShowWipes')
+    logpath = config["Settings"]["logpath"]
 else:
     with open("config.ini", 'w') as file:
     # Write content to the file
-        file.write("[Settings]\nshowwipes = False")
+        file.write("[Settings]\nshowwipes = False\nlogpath='.'")
+        logpath="."
     checkbox_default = False
-
 start_time = time.time()
 seen_files = set()
 
@@ -50,16 +51,17 @@ def upload_dpsreport(file_to_upload, domain):
     response = requests.post(url, files=files, data=data)
 
     if response.status_code != 200:        
+        success_value = False
+        dps_link = "skip"
         print(get_current_time(),"An error has occured while uploadng to dps.report")
         print(get_current_time(),"Errorcode:",response.status_code)
         if response.status_code == 403 and domain=="a":
             print(get_current_time(),"Trying b.dps.report")
-            return upload_dpsreport(file_to_upload, "b")
+            success_value,dps_link = upload_dpsreport(file_to_upload, "b")
         elif response.status_code == 403 and domain =="b":
-            print(get_current_time(), "Trying c.dps.report")
-            return upload_dpsreport(file_to_upload, "c")
-        print(get_current_time(), "All domains failed; skipping log")
-        return False, "skip"
+            print(get_current_time(), "Trying a.dps.report")
+            success_value,dps_link = upload_dpsreport(file_to_upload, "c")
+        return success_value, dps_link
 
     data = response.json()
     print(get_current_time(),"permalink:", data['permalink'])
@@ -133,7 +135,8 @@ while True:
             
     # -- Check for events --
     if event == sg.WIN_CLOSED or event == 'Exit':
-        config['Settings'] = {'ShowWipes': str(values['s1'])}
+        #config['Settings'] = {'ShowWipes': str(values['s1'])
+        config.set('Settings', 'ShowWipes', str(values['s1']))
         with open(config_file_path, 'w') as configfile:
             config.write(configfile)
         break
