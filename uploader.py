@@ -29,7 +29,7 @@ def upload_dpsreport(file_to_upload, domain):
     elif domain == "b":
         url = "https://b.dps.report/uploadContent"
     elif domain == "c":
-        url = "https://a.dps.report/uploadContent"
+        url = "http://a.dps.report/uploadContent"
     files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
     data = {'json': '1', 'generator': 'ei'}
 
@@ -68,7 +68,7 @@ while True:
             if file.endswith(".zevtc"):
                 file_path = os.path.join(root, file)
                 file_mtime = os.path.getmtime(file_path)
-                if file_path not in seen_files and file_mtime != start_time:
+                if file_path not in seen_files and file_mtime > start_time:
                     print(get_current_time(),"New file detected:",file)
                     seen_files.add(file_path)
                     success_value, dps_link = upload_dpsreport(file_path, "a") 
