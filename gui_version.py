@@ -136,7 +136,7 @@ while True:
             
     # -- Check for events --
     if event == sg.WIN_CLOSED or event == 'Exit':
-        config.set('Settings', 'ShowWipes', str(values['s1']))
+        #config.set('Settings', 'ShowWipes', str(values['s1']))
         with open(config_file_path, 'w') as configfile:
             config.write(configfile)
         break
@@ -153,6 +153,11 @@ while True:
     elif event == "Copy all to Clipboard incl Wipes":
         s = "\n".join(all_links)
         pyperclip.copy(s)
+    elif values['s1'] == True:
+        config.set('Settings', 'ShowWipes', 'True')
+    elif values['s1'] == False:
+        config.set('Settings', 'ShowWipes', 'False')
+        
         
         
 window.close()
