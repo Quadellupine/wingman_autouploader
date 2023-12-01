@@ -99,6 +99,7 @@ text_content = ""
 dps_link_old = ""
 dps_link = ""
 all_links=[]
+lines=[]
 while True:
     # --------- Read and update window --------
     event, values = window.read(timeout=10)
@@ -145,7 +146,6 @@ while True:
     elif event == "Copy last to Clipboard":
         lines = text_content.split('\n')
         pyperclip.copy(lines[-2])
-        print(lines)
     elif event == "Copy all to Clipboard":
         lines = text_content.split('\n')
         s = ''.join(lines)
