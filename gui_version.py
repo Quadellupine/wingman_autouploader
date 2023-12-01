@@ -88,7 +88,7 @@ layout = [
      [sg.Checkbox("Show wipes", key='s1', default=checkbox_default)]
 ]
 
-window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470))
+window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470),icon='icon.png')
 
 
 
