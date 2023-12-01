@@ -143,12 +143,13 @@ while True:
         
     elif event == "Copy last to Clipboard":
         lines = text_content.split('\n')
-        pyperclip.copy(lines[-2])
+        if len(lines) > 1:
+            pyperclip.copy(lines[-2])
     elif event == "Copy all to Clipboard":
         lines = text_content.split('\n')
-        if lines:
-            s = ''.join(lines)
-        pyperclip.copy(s)
+        s = ''.join(lines)
+        if len(lines)>1:
+            pyperclip.copy(s)
     elif event == "Copy all to Clipboard incl Wipes":
         s = "".join(all_links)
         pyperclip.copy(s)
