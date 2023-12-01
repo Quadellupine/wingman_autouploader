@@ -45,7 +45,7 @@ def upload_dpsreport(file_to_upload, domain):
     elif domain == "b":
         url = "https://b.dps.report/uploadContent"
     elif domain == "c":
-        url = "https://a.dps.report/uploadContent"
+        url = "http://a.dps.report/uploadContent"
     files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
     data = {'json': '1', 'generator': 'ei'}
 
@@ -88,7 +88,7 @@ layout = [
      [sg.Checkbox("Show wipes", key='s1', default=checkbox_default)]
 ]
 
-window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470))
+window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470),icon='icon.png')
 
 
 
@@ -110,7 +110,7 @@ while True:
                 file_path = os.path.join(root, file)
                 file_mtime = os.path.getmtime(file_path)
                 # Select only files that we havent seen before and that are created after starttime of the program
-                if file_path not in seen_files and file_mtime > start_time:
+                if file_path not in seen_files and file_mtime != start_time:
                     print(get_current_time(),"New file detected:",file)
                     seen_files.add(file_path)
                     success_value, dps_link = upload_dpsreport(file_path,"a")
@@ -147,11 +147,11 @@ while True:
             pyperclip.copy(lines[-2])
     elif event == "Copy all to Clipboard":
         lines = text_content.split('\n')
-        s = ''.join(lines)
+        s = "\n".join(lines)
         if len(lines)>1:
             pyperclip.copy(s)
     elif event == "Copy all to Clipboard incl Wipes":
-        s = "".join(all_links)
+        s = "\n".join(all_links)
         pyperclip.copy(s)
         
         
