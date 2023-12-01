@@ -7,6 +7,8 @@ To use it all you need to do is\
 (I think)
 # GUI Version
 This shit now has a GUI Version. Its bad and ugly, please improve it if you can. Ive never made a GUI before and I still dont really want to.\
+## config.ini
+On first run the GUI Program will create a config.ini. You can specify a logpath in there if you want to.
 # How to use this on Windows
 While I originally made this for Linux apparently MICROSOFT WINDOWS Users want to use this too. Here is a guide:\
 1. Download the contents of this repo
