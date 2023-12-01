@@ -84,7 +84,7 @@ workingdir = os.getcwd()
 layout = [
     [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)],
     [sg.Button("Exit", size=(26, 2)),
-     sg.Button("Copy last to Clipboard", size=(26, 2))],
+     sg.Button("Copy last to Clipboard", size=(26, 2),button_color=('white', 'green'))],
      [sg.Button("Copy all to Clipboard", size=(26, 2)),
      sg.Button("Copy all to Clipboard incl Wipes", size=(26, 2))],
      [sg.Checkbox("Show wipes", key='s1', default=checkbox_default)]
@@ -102,7 +102,7 @@ all_links=[]
 lines=[]
 while True:
     # --------- Read and update window --------
-    event, values = window.read(timeout=10)
+    event, values = window.read(timeout=100)
     # --- Do evtc logic
     # Find all files
     for root, _, files in os.walk(path):
@@ -112,7 +112,7 @@ while True:
                 file_path = os.path.join(root, file)
                 file_mtime = os.path.getmtime(file_path)
                 # Select only files that we havent seen before and that are created after starttime of the program
-                if file_path not in seen_files and file_mtime != start_time:
+                if file_path not in seen_files and file_mtime > start_time:
                     print(get_current_time(),"New file detected:",file)
                     seen_files.add(file_path)
                     success_value, dps_link = upload_dpsreport(file_path,"a")
@@ -145,13 +145,13 @@ while True:
         
     elif event == "Copy last to Clipboard":
         lines = text_content.split('\n')
-        #if len(lines) > 1:
-        pyperclip.copy(lines[-2])
+        if len(lines) > 1:
+            pyperclip.copy(lines[-2])
     elif event == "Copy all to Clipboard":
         lines = text_content.split('\n')
         s = "\n".join(lines)
-        #if len(lines)>1:
-        pyperclip.copy(s)
+        if len(lines)>1:
+            pyperclip.copy(s)
     elif event == "Copy all to Clipboard incl Wipes":
         s = "\n".join(all_links)
         pyperclip.copy(s)
