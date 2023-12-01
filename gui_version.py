@@ -16,7 +16,7 @@ if os.path.exists(config_file_path):
 else:
     with open("config.ini", 'w') as file:
     # Write content to the file
-        file.write("[Settings]\nshowwipes = False\nlogpath='.'")
+        file.write("[Settings]\nshowwipes = False\nlogpath=.")
         logpath="."
     checkbox_default = False
 start_time = time.time()
@@ -72,7 +72,7 @@ def upload_dpsreport(file_to_upload, domain):
 
 
 seen_files = set()
-path = "."
+path = logpath
 
 # ----------------  Create Form  ----------------
 sg.theme("Dark Black")
