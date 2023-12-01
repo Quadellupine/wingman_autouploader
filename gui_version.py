@@ -42,6 +42,8 @@ def upload_dpsreport(file_to_upload, domain):
         url = "https://dps.report/uploadContent"
     elif domain == "b":
         url = "https://b.dps.report/uploadContent"
+    elif domain == "c":
+        url = "https://a.dps.report/uploadContent"
     files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
     data = {'json': '1', 'generator': 'ei'}
 
@@ -51,7 +53,12 @@ def upload_dpsreport(file_to_upload, domain):
         print(get_current_time(),"An error has occured while uploadng to dps.report")
         print(get_current_time(),"Errorcode:",response.status_code)
         if response.status_code == 403 and domain=="a":
-            upload_dpsreport(file_to_upload, "b")
+            print(get_current_time(),"Trying b.dps.report")
+            return upload_dpsreport(file_to_upload, "b")
+        elif response.status_code == 403 and domain =="b":
+            print(get_current_time(), "Trying c.dps.report")
+            return upload_dpsreport(file_to_upload, "c")
+        print(get_current_time(), "All domains failed; skipping log")
         return False, "skip"
 
     data = response.json()
@@ -60,25 +67,13 @@ def upload_dpsreport(file_to_upload, domain):
     success_value = data.get('encounter', {}).get('success')
     return success_value, dps_link
 
-def check_success(url):
-    r = requests.get(url)
-    r.encoding = 'utf-8'
-    response = r.text
-    if " Result: Success " in response: 
-        print(get_current_time(),"Log is a kill")
-        return True
-    else:
-        print(get_current_time(),"Log is a wipe")
-        return False
+
 
 seen_files = set()
-
 path = "."
 
-initial_run = True
-
 # ----------------  Create Form  ----------------
-sg.theme("Dark Teal 10")
+sg.theme("Dark Black")
 
 workingdir = os.getcwd()
 
@@ -112,7 +107,7 @@ while True:
                 file_path = os.path.join(root, file)
                 file_mtime = os.path.getmtime(file_path)
                 # Select only files that we havent seen before and that are created after starttime of the program
-                if file_path not in seen_files and file_mtime > start_time:
+                if file_path not in seen_files and file_mtime != start_time:
                     print(get_current_time(),"New file detected:",file)
                     seen_files.add(file_path)
                     success_value, dps_link = upload_dpsreport(file_path,"a")
