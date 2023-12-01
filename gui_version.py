@@ -16,8 +16,10 @@ if os.path.exists(config_file_path):
     path = config["Settings"]["logpath"]
 else:
     with open("config.ini", 'w') as file:
-    # Write content to the file
+    # Create .ini file with some defaults
         file.write("[Settings]\nshowwipes = False\nlogpath=.")
+        file.close()
+        config.read(config_file_path)
         path="."
     checkbox_default = False
 start_time = time.time()
@@ -110,7 +112,7 @@ while True:
                 file_path = os.path.join(root, file)
                 file_mtime = os.path.getmtime(file_path)
                 # Select only files that we havent seen before and that are created after starttime of the program
-                if file_path not in seen_files and file_mtime > start_time:
+                if file_path not in seen_files and file_mtime != start_time:
                     print(get_current_time(),"New file detected:",file)
                     seen_files.add(file_path)
                     success_value, dps_link = upload_dpsreport(file_path,"a")
@@ -136,23 +138,28 @@ while True:
             
     # -- Check for events --
     if event == sg.WIN_CLOSED or event == 'Exit':
-        config.set('Settings', 'ShowWipes', str(values['s1']))
+        #config.set('Settings', 'ShowWipes', str(values['s1']))
         with open(config_file_path, 'w') as configfile:
             config.write(configfile)
         break
         
     elif event == "Copy last to Clipboard":
         lines = text_content.split('\n')
-        if len(lines) > 1:
-            pyperclip.copy(lines[-2])
+        #if len(lines) > 1:
+        pyperclip.copy(lines[-2])
     elif event == "Copy all to Clipboard":
         lines = text_content.split('\n')
         s = "\n".join(lines)
-        if len(lines)>1:
-            pyperclip.copy(s)
+        #if len(lines)>1:
+        pyperclip.copy(s)
     elif event == "Copy all to Clipboard incl Wipes":
         s = "\n".join(all_links)
         pyperclip.copy(s)
+    elif values['s1'] == True:
+        config.set('Settings', 'ShowWipes', 'True')
+    elif values['s1'] == False:
+        config.set('Settings', 'ShowWipes', 'False')
+        
         
         
 window.close()
