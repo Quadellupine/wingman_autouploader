@@ -5,6 +5,7 @@ from datetime import datetime
 import PySimpleGUI as sg
 import pyperclip
 import configparser
+
 # Load configuration
 config = configparser.ConfigParser()
 config_file_path = "config.ini"
@@ -12,12 +13,12 @@ config_file_path = "config.ini"
 if os.path.exists(config_file_path):
     config.read(config_file_path)
     checkbox_default = config.getboolean('Settings', 'ShowWipes')
-    logpath = config["Settings"]["logpath"]
+    path = config["Settings"]["logpath"]
 else:
     with open("config.ini", 'w') as file:
     # Write content to the file
         file.write("[Settings]\nshowwipes = False\nlogpath=.")
-        logpath="."
+        path="."
     checkbox_default = False
 start_time = time.time()
 seen_files = set()
@@ -73,9 +74,6 @@ def upload_dpsreport(file_to_upload, domain):
 
 
 
-seen_files = set()
-path = logpath
-print(path)
 # ----------------  Create Form  ----------------
 sg.theme("Dark Black")
 
@@ -138,18 +136,23 @@ while True:
             
     # -- Check for events --
     if event == sg.WIN_CLOSED or event == 'Exit':
-        #config['Settings'] = {'ShowWipes': str(values['s1'])
         config.set('Settings', 'ShowWipes', str(values['s1']))
         with open(config_file_path, 'w') as configfile:
             config.write(configfile)
         break
+        
     elif event == "Copy last to Clipboard":
         lines = text_content.split('\n')
-        pyperclip.copy(lines[-2])
+        if len(lines) > 1:
+            pyperclip.copy(lines[-2])
     elif event == "Copy all to Clipboard":
         lines = text_content.split('\n')
         s = ''.join(lines)
-        pyperclip.copy(s)
+        if len(lines)>1:
+            pyperclip.copy(s)
     elif event == "Copy all to Clipboard incl Wipes":
         s = "".join(all_links)
         pyperclip.copy(s)
+        
+        
+window.close()
