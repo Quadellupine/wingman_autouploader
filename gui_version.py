@@ -9,7 +9,6 @@ import configparser
 # Load configuration
 config = configparser.ConfigParser()
 config_file_path = "config.ini"
-
 if os.path.exists(config_file_path):
     config.read(config_file_path)
     checkbox_default = config.getboolean('Settings', 'ShowWipes')
@@ -22,8 +21,7 @@ else:
         config.read(config_file_path)
         path="."
     checkbox_default = False
-start_time = time.time()
-seen_files = set()
+
 
 def get_current_time():
     ts = time.time()
@@ -78,9 +76,6 @@ def upload_dpsreport(file_to_upload, domain):
 
 # ----------------  Create Form  ----------------
 sg.theme("Dark Black")
-
-workingdir = os.getcwd()
-
 layout = [
     [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)],
     [sg.Button("Exit", size=(26, 2)),
@@ -96,10 +91,11 @@ window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=
 
 # ----------------  Main Loop  ----------------
 text_content = ""
-dps_link_old = ""
 dps_link = ""
 all_links=[]
 lines=[]
+start_time = time.time()
+seen_files = set()
 while True:
     # --------- Read and update window --------
     event, values = window.read(timeout=100)
@@ -121,13 +117,11 @@ while True:
                     all_links.append(dps_link+"\n")
                     print(get_current_time(),"Success:",success_value)
                     # --------- Append to text content --------
-                    if dps_link != dps_link_old:
-                        # Only printing successful logs to GUI or if the user wants wipes
-                        checkbox_status = values['s1']
-                        if success_value or checkbox_status:
-                            text_content += dps_link+ "\n"
-                            window['text'].update(value=text_content)
-                        dps_link_old = dps_link
+                    # Only printing successful logs to GUI or if the user wants wipes
+                    checkbox_status = values['s1']
+                    if success_value or checkbox_status:
+                        text_content += dps_link+ "\n"
+                        window['text'].update(value=text_content)
                     # Only uploading successful logs to wingman
                     if success_value:
                         upload_wingman(dps_link)
