@@ -6,25 +6,27 @@ import PySimpleGUI as sg
 import pyperclip
 import configparser
 import queue
-# Queue for multithreading
+# Queue for multithreading and global variables
 result_queue = queue.Queue()
+path = "."
+checkbox_default = False
+sg.theme("Dark Brown 3")
 
 # Load configuration
 config = configparser.ConfigParser()
 config_file_path = "config.ini"
-if os.path.exists(config_file_path):
-    config.read(config_file_path)
-    checkbox_default = config.getboolean('Settings', 'ShowWipes')
-    path = config["Settings"]["logpath"]
-else:
+if not os.path.exists(config_file_path):
     with open("config.ini", 'w') as file:
     # Create .ini file with some defaults
-        file.write("[Settings]\nshowwipes = False\nlogpath=.")
+        file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Dark Teal 12")
         file.close()
         config.read(config_file_path)
-        path="."
-    checkbox_default = False
-
+        
+# Apply retrieved config
+config.read(config_file_path)
+checkbox_default = config.getboolean('Settings', 'showwipes')
+path = config["Settings"]["logpath"]
+sg.theme(config["Settings"]["theme"])
 
 def get_current_time():
     ts = time.time()
@@ -84,7 +86,6 @@ def upload_dpsreport(file_to_upload, domain, result_queue):
 
 
 # ----------------  Create Form  ----------------
-sg.theme("Light Brown 3")
 layout = [
     [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)],
     [sg.Button("Exit", size=(26, 2)),
