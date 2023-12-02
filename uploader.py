@@ -2,7 +2,6 @@ import os
 import time
 import requests
 from datetime import datetime
-import json
 
 start_time = time.time()
 seen_files = set()
