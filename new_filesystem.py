@@ -1,4 +1,4 @@
-import logging
+import time
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 import os
@@ -9,12 +9,9 @@ import PySimpleGUI as sg
 import pyperclip
 import configparser
 import queue
-import sys
+
 # Queue for multithreading and global variables
 result_queue = queue.Queue()
-path = "."
-checkbox_default = False
-sg.theme("Dark Brown 3")
 
 # Load configuration
 config = configparser.ConfigParser()
@@ -35,6 +32,27 @@ try:
 except:
     sg.popup("Malformed config.ini. Delete it to generate a clean one.",title="Error")
     exit()
+
+def on_created(event):
+    print(f"File {event.src_path} has been created!")
+    time.sleep(1)
+
+def on_deleted(event):
+    print(f"Deleted {event.src_path}!")
+
+def on_modified(event):
+    historicalSize = -1
+    if event.src_path not in seen_files and (event.src_path.endswith(".zevtc")):
+        seen_files.append(event.src_path)
+        while (historicalSize != os.path.getsize(event.src_path)):
+            historicalSize = os.path.getsize(event.src_path)
+            time.sleep(1)
+        print(event.src_path," file copy/creation has now finished")
+        # Start a new thread to upload files
+        window.start_thread(lambda: upload_dpsreport(event.src_path, 1, result_queue), ('-THREAD-', '-THEAD ENDED-'))
+
+def on_moved(event):
+    print(f"Moved {event.src_path} to {event.dest_path}")
 
 def get_current_time():
     ts = time.time()
@@ -104,98 +122,72 @@ layout = [
 ]
 
 window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470),icon='icon.png')
-
-
-def on_modified(event):
-    print("Custom!")
-    historicalSize = -1
-    while (historicalSize != os.path.getsize(event.src_path)):
-        historicalSize = os.path.getsize(event.src_path)
-        time.sleep(1)
-    print(event.src_path," file copy has now finished")
-
-# ----------------  Main Loop  ----------------
-start_time = time.time()
-seen_files = set()
-link_collection = []
-# Main program Loop, Logic happens here
-patterns = ["*"]
-ignore_patterns = None
-ignore_directories = False
-case_sensitive = True
-my_event_handler = PatternMatchingEventHandler(patterns, ignore_patterns, ignore_directories, case_sensitive)
-
-def on_modified(event):
-    print("Custom!")
-    historicalSize = -1
-    while (historicalSize != os.path.getsize(event.src_path)):
-        historicalSize = os.path.getsize(event.src_path)
-        time.sleep(1)
-    print(event.src_path," file copy has now finished")
     
+if __name__ == "__main__":
+    patterns = ["*"]
+    ignore_patterns = None
+    ignore_directories = False
+    case_sensitive = True
+    my_event_handler = PatternMatchingEventHandler(patterns, ignore_patterns, ignore_directories, case_sensitive)
 
+my_event_handler.on_created = on_created
+my_event_handler.on_deleted = on_deleted
 my_event_handler.on_modified = on_modified
+my_event_handler.on_moved = on_moved
+
+path = "."
+go_recursively = True
+my_observer = Observer()
+my_observer.schedule(my_event_handler, path, recursive=go_recursively)
+my_observer.start()
+
+start_time = time.time()
+seen_files = []
+link_collection = []
 
 
-while True:
-    # --------- Read and update window --------
-    event, values = window.read(timeout=100)
-    # Find all files
-    for root, _, files in os.walk(path):
-        for file in files:
-            # Find all files with zevtc extension
-            if file.endswith(".zevtc"):
-                file_path = os.path.join(root, file)
-                file_mtime = os.path.getmtime(file_path)
-                # Select only files that we havent seen before and that are created after starttime of the program
-                if file_path not in seen_files and file_mtime > start_time:
-                    print(get_current_time(),"New file detected:",file)
-                    seen_files.add(file_path)
-                    # Start a new thread to upload files
-                    window.start_thread(lambda: upload_dpsreport(file_path, 1, result_queue), ('-THREAD-', '-THEAD ENDED-'))
 
+try:
+    while True:
+        time.sleep(0.01)
+        event, values = window.read(timeout=10)
+        try:
+            success_value, dps_link = result_queue.get_nowait()
+            link_collection.append((success_value, dps_link))
+            if dps_link == "skip":
+                continue
+            # --------- Append to text content --------
+            # Only printing successful logs to GUI or if the user wants wipes
+            checkbox_status = values['s1']
+            if success_value or checkbox_status:
+                window['text'].print(dps_link)
+        except queue.Empty:
+            pass
+        # -- Check for events --
+        if event == sg.WIN_CLOSED or event == 'Exit':
+            with open(config_file_path, 'w') as configfile:
+                config.write(configfile)
+            break
             
-    # Check queue for new logs to handle
-    try:
-        success_value, dps_link = result_queue.get_nowait()
-        link_collection.append((success_value, dps_link))
-        if dps_link == "skip":
-            continue
-        # --------- Append to text content --------
-        # Only printing successful logs to GUI or if the user wants wipes
-        checkbox_status = values['s1']
-        if success_value or checkbox_status:
-            window['text'].print(dps_link)
-    except queue.Empty:
-        pass  
-    
-    
-    # -- Check for events --
-    if event == sg.WIN_CLOSED or event == 'Exit':
-        with open(config_file_path, 'w') as configfile:
-            config.write(configfile)
-        break
-        
-    elif event == "Copy last to Clipboard":
-        if link_collection:
-            pyperclip.copy(link_collection[-1][1])
-    elif event == "Copy all to Clipboard":
-        s = ""
-        for entry in link_collection:
-            s = s+(entry[1])+"\n"
-        pyperclip.copy(s)
-    elif event == "Copy only Kills":
-        s = ""
-        for entry in link_collection:
-            if entry[0] == True:
+        elif event == "Copy last to Clipboard":
+            if link_collection:
+                pyperclip.copy(link_collection[-1][1])
+        elif event == "Copy all to Clipboard":
+            s = ""
+            for entry in link_collection:
                 s = s+(entry[1])+"\n"
-        pyperclip.copy(s)
-                
-    elif values['s1'] == True:
-        config.set('Settings', 'ShowWipes', 'True')
-    elif values['s1'] == False:
-        config.set('Settings', 'ShowWipes', 'False')
-        
-        
-        
-window.close()
+            pyperclip.copy(s)
+        elif event == "Copy only Kills":
+            s = ""
+            for entry in link_collection:
+                if entry[0] == True:
+                    s = s+(entry[1])+"\n"
+            pyperclip.copy(s)
+                    
+        elif values['s1'] == True:
+            config.set('Settings', 'ShowWipes', 'True')
+        elif values['s1'] == False:
+            config.set('Settings', 'ShowWipes', 'False')
+except KeyboardInterrupt:
+    my_observer.stop()
+    my_observer.join()
