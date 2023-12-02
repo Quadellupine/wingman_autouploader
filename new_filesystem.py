@@ -33,12 +33,14 @@ except:
     sg.popup("Malformed config.ini. Delete it to generate a clean one.",title="Error")
     exit()
 
+
+# Watchdog Eventhandling
 def on_created(event):
-    print(f"File {event.src_path} has been created!")
+    print(get_current_time(), event.src_path," has been created!")
     time.sleep(1)
 
 def on_deleted(event):
-    print(f"Deleted {event.src_path}!")
+    return
 
 def on_modified(event):
     historicalSize = -1
@@ -47,12 +49,12 @@ def on_modified(event):
         while (historicalSize != os.path.getsize(event.src_path)):
             historicalSize = os.path.getsize(event.src_path)
             time.sleep(1)
-        print(event.src_path," file copy/creation has now finished")
+        print(get_current_time(), event.src_path," file creation has now finished")
         # Start a new thread to upload files
         window.start_thread(lambda: upload_dpsreport(event.src_path, 1, result_queue), ('-THREAD-', '-THEAD ENDED-'))
 
 def on_moved(event):
-    print(f"Moved {event.src_path} to {event.dest_path}")
+    return
 
 def get_current_time():
     ts = time.time()
