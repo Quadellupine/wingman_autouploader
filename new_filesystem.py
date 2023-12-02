@@ -1,3 +1,6 @@
+import logging
+from watchdog.observers import Observer
+from watchdog.events import PatternMatchingEventHandler
 import os
 import time
 import requests
@@ -6,6 +9,7 @@ import PySimpleGUI as sg
 import pyperclip
 import configparser
 import queue
+import sys
 # Queue for multithreading and global variables
 result_queue = queue.Queue()
 path = "."
@@ -102,12 +106,37 @@ layout = [
 window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470),icon='icon.png')
 
 
+def on_modified(event):
+    print("Custom!")
+    historicalSize = -1
+    while (historicalSize != os.path.getsize(event.src_path)):
+        historicalSize = os.path.getsize(event.src_path)
+        time.sleep(1)
+    print(event.src_path," file copy has now finished")
 
 # ----------------  Main Loop  ----------------
 start_time = time.time()
 seen_files = set()
 link_collection = []
 # Main program Loop, Logic happens here
+patterns = ["*"]
+ignore_patterns = None
+ignore_directories = False
+case_sensitive = True
+my_event_handler = PatternMatchingEventHandler(patterns, ignore_patterns, ignore_directories, case_sensitive)
+
+def on_modified(event):
+    print("Custom!")
+    historicalSize = -1
+    while (historicalSize != os.path.getsize(event.src_path)):
+        historicalSize = os.path.getsize(event.src_path)
+        time.sleep(1)
+    print(event.src_path," file copy has now finished")
+    
+
+my_event_handler.on_modified = on_modified
+
+
 while True:
     # --------- Read and update window --------
     event, values = window.read(timeout=100)
@@ -119,7 +148,7 @@ while True:
                 file_path = os.path.join(root, file)
                 file_mtime = os.path.getmtime(file_path)
                 # Select only files that we havent seen before and that are created after starttime of the program
-                if file_path not in seen_files and file_mtime != start_time:
+                if file_path not in seen_files and file_mtime > start_time:
                     print(get_current_time(),"New file detected:",file)
                     seen_files.add(file_path)
                     # Start a new thread to upload files
