@@ -23,10 +23,14 @@ if not os.path.exists(config_file_path):
         config.read(config_file_path)
         
 # Apply retrieved config
-config.read(config_file_path)
-checkbox_default = config.getboolean('Settings', 'showwipes')
-path = config["Settings"]["logpath"]
-sg.theme(config["Settings"]["theme"])
+try:
+    config.read(config_file_path)
+    checkbox_default = config.getboolean('Settings', 'showwipes')
+    path = config["Settings"]["logpath"]
+    sg.theme(config["Settings"]["theme"])
+except:
+    sg.popup("Malformed config.ini. Delete it to generate a clean one.",title="Error")
+    exit()
 
 def get_current_time():
     ts = time.time()

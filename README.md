@@ -7,7 +7,10 @@ Does nothing fancy, it watches for new logs and uploads them to dps.report and t
  ```pip install requests```
 # GUI Version
 This shit now has a GUI Version. Its bad and ugly, please improve it if you can. I've never made a GUI before and I still don't really want to. The GUI is multithreaded and there may be concurrency issues. I haven't found any but there may be. Packages required:\
-```pip install requests pysimplegui pyperclip configparser```
+```pip install requests pysimplegui pyperclip configparser```<br>
+It is also possible to choose your own Theme by setting it in the generated .ini file. You can view all themes here:<br>
+https://media.geeksforgeeks.org/wp-content/uploads/20200511200254/f19.jpg<br>
+Example: ```theme = Dark Brown 3```
 ## config.ini
 On first run the GUI Program will create a config.ini. You can specify a logpath in there if you want to. Ideally the path should have no spaces. The program checks all subfolders, so you can just specify your path to ```arcdps.cbtlogs```.
 # How to use this on Windows
