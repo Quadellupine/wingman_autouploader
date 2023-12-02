@@ -120,7 +120,7 @@ while True:
                 file_path = os.path.join(root, file)
                 file_mtime = os.path.getmtime(file_path)
                 # Select only files that we havent seen before and that are created after starttime of the program
-                if file_path not in seen_files and file_mtime > start_time:
+                if file_path not in seen_files and file_mtime != start_time:
                     print(get_current_time(),"New file detected:",file)
                     seen_files.add(file_path)
                     # Start a new thread to upload files
@@ -154,15 +154,15 @@ while True:
         if len(lines) > 1:
             pyperclip.copy(lines[-2])
     elif event == "Copy all to Clipboard":
-        lines = text_content.split('\n')
-        s = "\n".join(lines)
-        if len(lines)>1:
-            pyperclip.copy(s)
+        s = ""
+        for entry in link_collection:
+            s = s+(entry[1])+"\n"
+        pyperclip.copy(s)
     elif event == "Copy only Kills":
         s = ""
         for entry in link_collection:
             if entry[0] == True:
-                s = s+(entry[1])
+                s = s+(entry[1])+"\n"
         pyperclip.copy(s)
                 
     elif values['s1'] == True:
