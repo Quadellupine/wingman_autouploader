@@ -137,7 +137,6 @@ my_event_handler.on_deleted = on_deleted
 my_event_handler.on_modified = on_modified
 my_event_handler.on_moved = on_moved
 
-path = "."
 go_recursively = True
 my_observer = Observer()
 my_observer.schedule(my_event_handler, path, recursive=go_recursively)
