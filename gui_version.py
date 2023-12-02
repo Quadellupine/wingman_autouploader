@@ -105,7 +105,6 @@ window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=
 
 # ----------------  Main Loop  ----------------
 start_time = time.time()
-text_content = ""
 seen_files = set()
 link_collection = []
 # Main program Loop, Logic happens here
@@ -120,7 +119,7 @@ while True:
                 file_path = os.path.join(root, file)
                 file_mtime = os.path.getmtime(file_path)
                 # Select only files that we havent seen before and that are created after starttime of the program
-                if file_path not in seen_files and file_mtime > start_time:
+                if file_path not in seen_files and file_mtime != start_time:
                     print(get_current_time(),"New file detected:",file)
                     seen_files.add(file_path)
                     # Start a new thread to upload files
@@ -137,8 +136,7 @@ while True:
         # Only printing successful logs to GUI or if the user wants wipes
         checkbox_status = values['s1']
         if success_value or checkbox_status:
-            text_content += dps_link+ "\n"
-            window['text'].update(value=text_content)
+            window['text'].print(dps_link)
     except queue.Empty:
         pass  
     
@@ -150,9 +148,8 @@ while True:
         break
         
     elif event == "Copy last to Clipboard":
-        lines = text_content.split('\n')
-        if len(lines) > 1:
-            pyperclip.copy(lines[-2])
+        if link_collection:
+            pyperclip.copy(link_collection[-1][1])
     elif event == "Copy all to Clipboard":
         s = ""
         for entry in link_collection:
