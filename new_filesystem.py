@@ -18,10 +18,10 @@ config = configparser.ConfigParser()
 config_file_path = "config.ini"
 if not os.path.exists(config_file_path):
     with open("config.ini", 'w') as file:
-    # Create .ini file with some defaults
+        # Create .ini file with some defaults
         file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Dark Teal 12")
         file.close()
-        config.read(config_file_path)
+    config.read(config_file_path)
         
 # Apply retrieved config
 try:
@@ -37,14 +37,13 @@ except:
 # Watchdog Eventhandling
 def on_created(event):
     print(get_current_time(), event.src_path," has been created!")
-    time.sleep(1)
 
 def on_deleted(event):
     return
 
 def on_modified(event):
     historicalSize = -1
-    if event.src_path not in seen_files and (event.src_path.endswith(".zevtc")):
+    if event.src_path not in seen_files:
         seen_files.append(event.src_path)
         while (historicalSize != os.path.getsize(event.src_path)):
             historicalSize = os.path.getsize(event.src_path)
@@ -126,7 +125,7 @@ layout = [
 window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470),icon='icon.png')
     
 if __name__ == "__main__":
-    patterns = ["*"]
+    patterns = ["*.zevtc"]
     ignore_patterns = None
     ignore_directories = False
     case_sensitive = True
