@@ -2,7 +2,6 @@ import os
 import time
 import requests
 from datetime import datetime
-import json
 
 start_time = time.time()
 seen_files = set()
@@ -40,10 +39,12 @@ def upload_dpsreport(file_to_upload, domain):
         dps_link = "skip"
         print(get_current_time(),"An error has occured while uploadng to dps.report")
         print(get_current_time(),"Errorcode:",response.status_code)
-        if response.status_code == 403 and domain=="a":
+        if domain=="a":
             print(get_current_time(),"Trying b.dps.report")
+            time.sleep(3)
             success_value,dps_link = upload_dpsreport(file_to_upload, "b")
-        elif response.status_code == 403 and domain =="b":
+        elif domain =="b":
+            time.sleep(3)
             print(get_current_time(), "Trying a.dps.report")
             success_value,dps_link = upload_dpsreport(file_to_upload, "c")
         return success_value, dps_link
