@@ -124,12 +124,11 @@ layout = [
 
 window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470),icon='icon.png')
     
-if __name__ == "__main__":
-    patterns = ["*.zevtc"]
-    ignore_patterns = None
-    ignore_directories = False
-    case_sensitive = True
-    my_event_handler = PatternMatchingEventHandler(patterns, ignore_patterns, ignore_directories, case_sensitive)
+patterns = ["*.zevtc"]
+ignore_patterns = None
+ignore_directories = False
+case_sensitive = True
+my_event_handler = PatternMatchingEventHandler(patterns, ignore_patterns, ignore_directories, case_sensitive)
 
 my_event_handler.on_created = on_created
 my_event_handler.on_deleted = on_deleted
@@ -149,8 +148,8 @@ link_collection = []
 
 try:
     while True:
-        time.sleep(0.01)
-        event, values = window.read(timeout=10)
+        time.sleep(0.05)
+        event, values = window.read(timeout=100)
         try:
             success_value, dps_link = result_queue.get_nowait()
             link_collection.append((success_value, dps_link))
