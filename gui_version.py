@@ -35,7 +35,7 @@ except:
 
 # Watchdog Eventhandling
 def on_created(event):
-    if event.src_path.endswith(".evtc"):
+    if event.src_path.endswith(".zevtc"):
         print(get_current_time(), event.src_path," has been created!")
         seen_files.append(event.src_path)
         time.sleep(1)
@@ -46,7 +46,7 @@ def on_deleted(event):
 
 def on_modified(event):
     historicalSize = -1
-    if event.src_path not in seen_files and (event.src_path.endswith(".evtc")):
+    if event.src_path not in seen_files and (event.src_path.endswith(".zevtc")):
         seen_files.append(event.src_path)
         while (historicalSize != os.path.getsize(event.src_path)):
             historicalSize = os.path.getsize(event.src_path)
