@@ -42,7 +42,7 @@ def on_deleted(event):
 
 def on_modified(event):
     historicalSize = -1
-    if event.src_path not in seen_files:
+    if event.src_path not in seen_files and (event.src_path.endswith(".evtc")):
         seen_files.append(event.src_path)
         while (historicalSize != os.path.getsize(event.src_path)):
             historicalSize = os.path.getsize(event.src_path)
@@ -123,7 +123,7 @@ layout = [
 
 window = sg.Window('Autouploader', layout, no_titlebar=False, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470),icon='icon.ico')
     
-patterns = ["*.zevtc"]
+patterns = ["*"]
 ignore_patterns = None
 ignore_directories = False
 case_sensitive = True
