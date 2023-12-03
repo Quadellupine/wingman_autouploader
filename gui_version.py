@@ -56,9 +56,10 @@ def on_modified(event):
         window.start_thread(lambda: upload_dpsreport(event.src_path, 1, result_queue), ('-THREAD-', '-THEAD ENDED-'))
 
 def on_moved(event):
+    print("moved into ", event.dest_path)
     historicalSize = -1
-    if event.src_path not in seen_files and (event.dest_path.endswith(".zevtc")):
-        seen_files.append(event.src_path)
+    if event.dest_path not in seen_files and (event.dest_path.endswith(".zevtc")):
+        seen_files.append(event.dest_path)
         while (historicalSize != os.path.getsize(event.dest_path)):
             historicalSize = os.path.getsize(event.dest_path)
             time.sleep(1)
