@@ -1,16 +1,15 @@
 import time
+from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 import os
-import time
 import requests
-from datetime import datetime
 import PySimpleGUI as sg
 import pyperclip
 import configparser
 import queue
 
-# Queue for multithreading and global variables
+# Queue for multithreading
 result_queue = queue.Queue()
 
 # Load configuration
@@ -141,6 +140,7 @@ my_observer.schedule(my_event_handler, path, recursive=go_recursively)
 my_observer.start()
 
 start_time = time.time()
+# Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
 link_collection = []
 
