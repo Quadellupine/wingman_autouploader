@@ -35,11 +35,7 @@ except:
 
 # Watchdog Eventhandling
 def on_created(event):
-    if event.src_path.endswith(".zevtc"):
-        print(get_current_time(), event.src_path," has been created!")
-        seen_files.append(event.src_path)
-        time.sleep(1)
-        window.start_thread(lambda: upload_dpsreport(event.src_path, 1, result_queue), ('-THREAD-', '-THEAD ENDED-'))
+    return
 
 def on_deleted(event):
     return
