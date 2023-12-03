@@ -52,11 +52,19 @@ def on_modified(event):
             historicalSize = os.path.getsize(event.src_path)
             time.sleep(1)
         print(get_current_time(), event.src_path," file creation has now finished")
-        # Start a new thread to upload files
+        # Start a new thread to u/home/anni/Downloads/wingman_autouploader/new_filesystem.pypload files
         window.start_thread(lambda: upload_dpsreport(event.src_path, 1, result_queue), ('-THREAD-', '-THEAD ENDED-'))
 
 def on_moved(event):
-    return
+    historicalSize = -1
+    if event.src_path not in seen_files and (event.dest_path.endswith(".zevtc")):
+        seen_files.append(event.src_path)
+        while (historicalSize != os.path.getsize(event.dest_path)):
+            historicalSize = os.path.getsize(event.dest_path)
+            time.sleep(1)
+        print(get_current_time(), event.dest_path," file creation has now finished")
+        # Start a new thread to u/home/anni/Downloads/wingman_autouploader/new_filesystem.pypload files
+        window.start_thread(lambda: upload_dpsreport(event.dest_path, 1, result_queue), ('-THREAD-', '-THEAD ENDED-'))
 
 def get_current_time():
     ts = time.time()
