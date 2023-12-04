@@ -103,6 +103,8 @@ def upload_dpsreport(file_to_upload, domain):
             upload_wingman(dps_link)
     else:
         print(get_current_time(),"Not pushing wipes to wingman")
+
+    print("------------------------------------------------------------------------------------------")
     return success_value, dps_link
 
 
