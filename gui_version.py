@@ -83,7 +83,8 @@ def upload_dpsreport(file_to_upload, domain, result_queue):
 
     response = requests.post(url, files=files, data=data, headers=headers)
 
-    if response.status_code != 200:        
+    if response.status_code != 200: 
+        print(data['error'])       
         success_value = False
         dps_link = "skip"
         print(get_current_time(),"An error has occured while uploadng to dps.report")
@@ -101,7 +102,6 @@ def upload_dpsreport(file_to_upload, domain, result_queue):
     data = response.json()
     dps_link = data['permalink']
     success_value = data.get('encounter', {}).get('success')
-    print(data['error'])
     print(get_current_time(),"permalink:", data['permalink'])
     print(get_current_time(),"Success:",success_value)
     if success_value == True:
