@@ -81,6 +81,8 @@ def upload_dpsreport(file_to_upload, domain, result_queue):
     data = {'json': '1', 'generator': 'ei'}
 
     response = requests.post(url, files=files, data=data, headers=headers, timeout=(None,30))
+    if not response:
+        return
     data = response.json()
     error = data["error"]
     if response.status_code != 200:   
