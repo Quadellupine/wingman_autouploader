@@ -35,7 +35,6 @@ except:
 
 # Watchdog Eventhandling
 def on_created(event):
-    print("debug")
     return
 
 def on_deleted(event):
@@ -109,6 +108,7 @@ def upload_dpsreport(file_to_upload, domain, result_queue):
     else:
         print(get_current_time(),"Not pushing wipes to wingman")
     result_queue.put((success_value, dps_link))
+    print("------------------------------------------------------------------------------------------")
     return success_value, dps_link
 
 
