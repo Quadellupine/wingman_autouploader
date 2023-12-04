@@ -44,14 +44,13 @@ def on_modified(event):
     return
 
 def on_moved(event):
-    print(get_current_time(),"Log created:", event.dest_path)
     historicalSize = -1
     if event.dest_path not in seen_files and (event.dest_path.endswith(".zevtc")):
         seen_files.append(event.dest_path)
         while (historicalSize != os.path.getsize(event.dest_path)):
             historicalSize = os.path.getsize(event.dest_path)
-            time.sleep(3)
-        print(get_current_time(), event.dest_path," file creation has now finished")
+            time.sleep(5)
+        print(get_current_time(), event.dest_path.split(path)[1],"log creation has now finished")
         window.start_thread(lambda: upload_dpsreport(event.dest_path, 1, result_queue), ('-THREAD-', '-THEAD ENDED-'))
 
 def get_current_time():
