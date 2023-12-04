@@ -83,11 +83,11 @@ def upload_dpsreport(file_to_upload, domain, result_queue):
 
     response = requests.post(url, files=files, data=data, headers=headers)
     data = response.json()
-    if response.status_code != 200: 
-        print(data['error'])       
+    error = data["error"]
+    if response.status_code != 200:   
         success_value = False
         dps_link = "skip"
-        print(get_current_time(),"An error has occured while uploadng to dps.report")
+        print(get_current_time(),error)
         print(get_current_time(),"Errorcode:",response.status_code)
         if domain==1:
             print(get_current_time(),"Trying b.dps.report")
