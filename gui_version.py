@@ -101,6 +101,7 @@ def upload_dpsreport(file_to_upload, domain, result_queue):
     data = response.json()
     dps_link = data['permalink']
     success_value = data.get('encounter', {}).get('success')
+    print(data['error'])
     print(get_current_time(),"permalink:", data['permalink'])
     print(get_current_time(),"Success:",success_value)
     if success_value == True:
