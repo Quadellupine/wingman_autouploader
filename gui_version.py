@@ -35,6 +35,7 @@ except:
 
 # Watchdog Eventhandling
 def on_created(event):
+    print("debug")
     return
 
 def on_deleted(event):
