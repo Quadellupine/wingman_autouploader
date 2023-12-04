@@ -70,12 +70,11 @@ def upload_dpsreport(file_to_upload, domain):
     elif domain == 2:
         url = "https://b.dps.report/uploadContent"
     elif domain == 3:
-        url = "http://a.dps.report/uploadContent"
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',}   
+        url = "http://a.dps.report/uploadContent"  
     files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
     data = {'json': '1', 'generator': 'ei'}
 
-    response = requests.post(url, files=files, data=data, headers=headers)
+    response = requests.post(url, files=files, data=data)
 
     if response.status_code != 200:        
         success_value = False
