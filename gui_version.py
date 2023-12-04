@@ -126,7 +126,10 @@ layout = [
      [sg.Checkbox("Show wipes", key='s1', default=checkbox_default),
       sg.Checkbox("Upload wipes to Wingman", key ='s2', default=True)]
 ]
-base_dir = sys._MEIPASS
+if getattr(sys, 'frozen', False):
+    base_dir = sys._MEIPASS
+else:
+    base_dir="."
 icon_path = os.path.join(base_dir, 'icon.ico')
 window = sg.Window('Autouploader', layout, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470), icon="icon.ico")
 window.set_icon(icon_path)
