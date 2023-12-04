@@ -2,6 +2,7 @@ import time
 from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
+import sys
 import os
 import requests
 import PySimpleGUI as sg
@@ -125,9 +126,10 @@ layout = [
      [sg.Checkbox("Show wipes", key='s1', default=checkbox_default),
       sg.Checkbox("Upload wipes to Wingman", key ='s2', default=True)]
 ]
-
-window = sg.Window('Autouploader', layout, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470))
-window.set_icon("icon.ico")
+base_dir = sys._MEIPASS
+icon_path = os.path.join(base_dir, 'icon.ico')
+window = sg.Window('Autouploader', layout, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470), icon="icon.ico")
+window.set_icon(icon_path)
 patterns = ["*"]
 ignore_patterns = None
 ignore_directories = False
