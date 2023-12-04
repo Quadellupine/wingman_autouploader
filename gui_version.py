@@ -64,7 +64,7 @@ def get_current_time():
 
 def upload_wingman(dps_link):
     url = "https://gw2wingman.nevermindcreations.de/api/importLogQueued"
-    params = {"link": dps_link}
+    params = {"link": dps_link, 'antibot': 'true'}
     response = requests.get(url, params=params)
     data = response.json()
     print(get_current_time(),data['note'])
