@@ -104,7 +104,8 @@ def upload_dpsreport(file_to_upload, domain, result_queue):
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", data['permalink'])
     print(get_current_time(),"Success:",success_value)
-    if success_value == True:
+    checkbox_status = values ['s2']
+    if success_value == True or checkbox_status == True:
             upload_wingman(dps_link)
     else:
         print(get_current_time(),"Not pushing wipes to wingman")
@@ -121,7 +122,8 @@ layout = [
      sg.Button("Copy last to Clipboard", size=(26, 2))],
      [sg.Button("Copy all to Clipboard", size=(26, 2)),
       sg.Button("Copy only Kills", size=(26,2))],
-     [sg.Checkbox("Show wipes", key='s1', default=checkbox_default)]
+     [sg.Checkbox("Show wipes", key='s1', default=checkbox_default),
+      sg.Checkbox("Upload wipes to Wingman", key ='s2', default=True)]
 ]
 
 window = sg.Window('Autouploader', layout, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470))
