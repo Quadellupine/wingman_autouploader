@@ -82,7 +82,7 @@ def upload_dpsreport(file_to_upload, domain, result_queue):
     data = {'json': '1', 'generator': 'ei'}
 
     response = requests.post(url, files=files, data=data, headers=headers)
-
+    data = response.json()
     if response.status_code != 200: 
         print(data['error'])       
         success_value = False
@@ -99,7 +99,7 @@ def upload_dpsreport(file_to_upload, domain, result_queue):
             success_value,dps_link = upload_dpsreport(file_to_upload, 3, result_queue)
         return success_value, dps_link
 
-    data = response.json()
+    
     dps_link = data['permalink']
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", data['permalink'])
