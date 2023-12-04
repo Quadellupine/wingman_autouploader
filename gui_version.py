@@ -50,7 +50,7 @@ def on_moved(event):
         seen_files.append(event.dest_path)
         while (historicalSize != os.path.getsize(event.dest_path)):
             historicalSize = os.path.getsize(event.dest_path)
-            time.sleep(1)
+            time.sleep(3)
         print(get_current_time(), event.dest_path," file creation has now finished")
         window.start_thread(lambda: upload_dpsreport(event.dest_path, 1, result_queue), ('-THREAD-', '-THEAD ENDED-'))
 
