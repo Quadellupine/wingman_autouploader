@@ -145,6 +145,7 @@ try:
         event, values = window.read(timeout=100)
         try:
             success_value, dps_link = result_queue.get_nowait()
+            upload_wingman(dps_link)
             link_collection.append((success_value, dps_link))
             if dps_link == "skip":
                 continue
