@@ -9,7 +9,7 @@ import PySimpleGUI as sg
 import pyperclip
 import configparser
 import queue
-
+import json
 # Queue for multithreading
 result_queue = queue.Queue()
 
@@ -54,7 +54,7 @@ def on_moved(event):
             historicalSize = os.path.getsize(event.dest_path)
             time.sleep(5)
         print(get_current_time(), event.dest_path.split(path)[1],"log creation has now finished")
-        window.start_thread(lambda: upload_dpsreport(event.dest_path, 1, result_queue), ('-THREAD-', '-THEAD ENDED-'))
+        window.start_thread(lambda: dpsreport_fixed(event.dest_path, 1, result_queue), ('-THREAD-', '-THEAD ENDED-'))
 
 def get_current_time():
     ts = time.time()
@@ -72,49 +72,31 @@ def upload_wingman(dps_link):
     print(get_current_time(),data['note'])
 
 
-def upload_dpsreport(file_to_upload, domain, result_queue):
+def dpsreport_fixed(file_to_upload, domain, result_queue):
     if domain == 1:
         url = "https://dps.report/uploadContent"
     elif domain == 2:
         url = "https://b.dps.report/uploadContent"
     elif domain == 3:
-        url = "http://a.dps.report/uploadContent"  
+        url = "http://a.dps.report/uploadContent" 
+    else:
+        return(False,"skip")
     files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
     data = {'json': '1', 'generator': 'ei'}
-
-    response = requests.post(url, files=files, data=data, timeout=30)
-    time.sleep(3)
+    headers = {'Accept': 'application/json'}
+    try:
+        response = requests.post(url, files=files, data=data, timeout=30, headers=headers)
+    except (requests.exceptions.ConnectionError, json.decoder.JSONDecodeError):
+        print(get_current_time(),"Error, retrying: ", response.status_code)
+        time.sleep(2**domain) #exponential backoff
+        return dpsreport_fixed(file_to_upload, domain+1)
     data = response.json()
-    error = data["error"]
-    if response.status_code != 200:   
-        success_value = False
-        dps_link = "skip"
-        print(get_current_time(),error)
-        print(get_current_time(),"Errorcode:",response.status_code)
-        if domain==1:
-            print(get_current_time(),"Trying b.dps.report")
-            time.sleep(3)
-            success_value,dps_link = upload_dpsreport(file_to_upload, 2, result_queue)
-        elif domain ==2:
-            time.sleep(3)
-            print(get_current_time(), "Trying a.dps.report")
-            success_value,dps_link = upload_dpsreport(file_to_upload, 3, result_queue)
-        return success_value, dps_link
-
-    
     dps_link = data['permalink']
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", data['permalink'])
     print(get_current_time(),"Success:",success_value)
-    checkbox_status = values['s2']
-    if (success_value == True or checkbox_status == True) and no_wingman == False:
-            upload_wingman(dps_link)
-    else:
-        print(get_current_time(),"Not pushing to wingman")
     result_queue.put((success_value, dps_link))
-    print("------------------------------------------------------------------------------------------")
     return success_value, dps_link
-
 
 
 # ----------------  Create Form  ----------------
@@ -163,6 +145,11 @@ try:
         event, values = window.read(timeout=100)
         try:
             success_value, dps_link = result_queue.get_nowait()
+            checkbox_status = values['s2']
+            if (success_value == True or checkbox_status == True) and no_wingman == False:
+                upload_wingman(dps_link)
+            else:
+                print(get_current_time(),"Not pushing to wingman")
             link_collection.append((success_value, dps_link))
             if dps_link == "skip":
                 continue
