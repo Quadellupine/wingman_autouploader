@@ -19,7 +19,7 @@ config_file_path = "config.ini"
 if not os.path.exists(config_file_path):
     with open("config.ini", 'w') as file:
         # Create .ini file with some defaults
-        file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Dark Teal 12")
+        file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Dark Teal 12\npushwipes = False")
         file.close()
     config.read(config_file_path)
         
@@ -29,6 +29,7 @@ try:
     checkbox_default = config.getboolean('Settings', 'showwipes')
     path = config["Settings"]["logpath"]
     sg.theme(config["Settings"]["theme"])
+    pushwipes = config.getboolean('Settings', 'pushwipes')
 except:
     sg.popup("Malformed config.ini. Delete it to generate a clean one.",title="Error")
     exit()
@@ -76,12 +77,11 @@ def upload_dpsreport(file_to_upload, domain, result_queue):
     elif domain == 2:
         url = "https://b.dps.report/uploadContent"
     elif domain == 3:
-        url = "http://a.dps.report/uploadContent"
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',}   
+        url = "http://a.dps.report/uploadContent"  
     files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
     data = {'json': '1', 'generator': 'ei'}
 
-    response = requests.post(url, files=files, data=data, headers=headers, timeout=30)
+    response = requests.post(url, files=files, data=data, timeout=30)
  
     data = response.json()
     error = data["error"]
@@ -105,7 +105,7 @@ def upload_dpsreport(file_to_upload, domain, result_queue):
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", data['permalink'])
     print(get_current_time(),"Success:",success_value)
-    checkbox_status = values ['s2']
+    checkbox_status = values['s2']
     if success_value == True or checkbox_status == True:
             upload_wingman(dps_link)
     else:
@@ -124,7 +124,7 @@ layout = [
      [sg.Button("Copy all to Clipboard", size=(26, 2)),
       sg.Button("Copy only Kills", size=(26,2))],
      [sg.Checkbox("Show wipes", key='s1', default=checkbox_default),
-      sg.Checkbox("Upload wipes to Wingman", key ='s2', default=True)]
+      sg.Checkbox("Upload wipes to Wingman", key ='s2', default=pushwipes)]
 ]
 if getattr(sys, 'frozen', False):
     base_dir = sys._MEIPASS
@@ -197,6 +197,10 @@ try:
             config.set('Settings', 'ShowWipes', 'True')
         elif values['s1'] == False:
             config.set('Settings', 'ShowWipes', 'False')
+        if values['s2'] == True:
+            config.set('Settings', 'pushwipes', 'True')
+        elif values['s2'] == False:
+            config.set('Settings', 'pushwipes', 'False')
 except KeyboardInterrupt:
     my_observer.stop()
     my_observer.join()
