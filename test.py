@@ -145,6 +145,7 @@ try:
         event, values = window.read(timeout=100)
         try:
             success_value, dps_link = result_queue.get_nowait()
+            checkbox_status = values['s2']
             if (success_value == True or checkbox_status == True) and no_wingman == False:
                 upload_wingman(dps_link)
             else:
