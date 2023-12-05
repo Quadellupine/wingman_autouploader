@@ -80,7 +80,7 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
     elif domain == 3:
         url = "http://a.dps.report/uploadContent" 
     else:
-        return
+        return(False,"skip")
     files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
     data = {'json': '1', 'generator': 'ei'}
     headers = {'Accept': 'application/json'}
