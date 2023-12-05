@@ -1,12 +1,10 @@
 *.zevtc
-test.py
 evtc.py
 testlogs/
 __pycache__/
 build/
 dist/
 .git/
-test.py
 config.ini
 *.spec
 
