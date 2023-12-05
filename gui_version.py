@@ -93,10 +93,10 @@ def upload_dpsreport(file_to_upload, domain, result_queue):
         print(get_current_time(),"Errorcode:",response.status_code)
         if domain==1:
             print(get_current_time(),"Trying b.dps.report")
-            time.sleep(31)
+            time.sleep(3)
             success_value,dps_link = upload_dpsreport(file_to_upload, 2, result_queue)
         elif domain ==2:
-            time.sleep(31)
+            time.sleep(31
             print(get_current_time(), "Trying a.dps.report")
             success_value,dps_link = upload_dpsreport(file_to_upload, 3, result_queue)
         return success_value, dps_link
