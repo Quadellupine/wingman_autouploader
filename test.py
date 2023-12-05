@@ -86,61 +86,16 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
     headers = {'Accept': 'application/json'}
     try:
         response = requests.post(url, files=files, data=data, timeout=30, headers=headers)
-        data = response.json()
-        dps_link = data['permalink']
-        success_value = data.get('encounter', {}).get('success')
-        print(get_current_time(),"permalink:", data['permalink'])
-        print(get_current_time(),"Success:",success_value)
-        result_queue.put((success_value, dps_link))
-        return success_value, dps_link
     except (requests.exceptions.ConnectionError, json.decoder.JSONDecodeError):
         time.sleep(2**domain) #exponential backoff
         return dpsreport_fixed(file_to_upload, domain+1)
-
-
-def upload_dpsreport(file_to_upload, domain, result_queue):
-    if domain == 1:
-        url = "https://dps.report/uploadContent"
-    elif domain == 2:
-        url = "https://b.dps.report/uploadContent"
-    elif domain == 3:
-        url = "http://a.dps.report/uploadContent"  
-    files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
-    data = {'json': '1', 'generator': 'ei'}
-
-    response = requests.post(url, files=files, data=data, timeout=30)
-    time.sleep(3)
     data = response.json()
-    error = data["error"]
-    if response.status_code != 200:   
-        success_value = False
-        dps_link = "skip"
-        print(get_current_time(),error)
-        print(get_current_time(),"Errorcode:",response.status_code)
-        if domain==1:
-            print(get_current_time(),"Trying b.dps.report")
-            time.sleep(3)
-            success_value,dps_link = upload_dpsreport(file_to_upload, 2, result_queue)
-        elif domain ==2:
-            time.sleep(3)
-            print(get_current_time(), "Trying a.dps.report")
-            success_value,dps_link = upload_dpsreport(file_to_upload, 3, result_queue)
-        return success_value, dps_link
-
-    
     dps_link = data['permalink']
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", data['permalink'])
     print(get_current_time(),"Success:",success_value)
-    checkbox_status = values['s2']
-    if (success_value == True or checkbox_status == True) and no_wingman == False:
-            upload_wingman(dps_link)
-    else:
-        print(get_current_time(),"Not pushing to wingman")
     result_queue.put((success_value, dps_link))
-    print("------------------------------------------------------------------------------------------")
     return success_value, dps_link
-
 
 
 # ----------------  Create Form  ----------------
