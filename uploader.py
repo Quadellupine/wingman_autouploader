@@ -15,7 +15,7 @@ config_file_path = "config.ini"
 if not os.path.exists(config_file_path):
     with open("config.ini", 'w') as file:
         # Create .ini file with some defaults
-        file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Dark Teal 12\npushwipes = False")
+        file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Dark Teal 12\npushwipes = False\nno_wingman = False")
         file.close()
     config.read(config_file_path)
         
@@ -26,6 +26,7 @@ try:
     path = config["Settings"]["logpath"]
     sg.theme(config["Settings"]["theme"])
     pushwipes = config["Settings"]["pushwipes"]
+    no_wingman = config.getboolean('Settings', 'no_wingman')
 except:
     sg.popup("Malformed config.ini. Delete it to generate a clean one.",title="Error")
     exit()
@@ -99,7 +100,7 @@ def upload_dpsreport(file_to_upload, domain):
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", data['permalink'])
     print(get_current_time(),"Success:",success_value)
-    if success_value == True or pushwipes:
+    if (success_value == True or pushwipes) and no_wingman == False:
             upload_wingman(dps_link)
     else:
         print(get_current_time(),"Not pushing wipes to wingman")
