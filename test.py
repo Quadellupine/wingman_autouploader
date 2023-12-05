@@ -87,7 +87,7 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
     try:
         response = requests.post(url, files=files, data=data, timeout=30, headers=headers)
     except (requests.exceptions.ConnectionError, json.decoder.JSONDecodeError):
-        print("Error, retrying....")
+        print(get_current_time(),"Error, retrying: ", response.status_code)
         time.sleep(2**domain) #exponential backoff
         return dpsreport_fixed(file_to_upload, domain+1)
     data = response.json()
