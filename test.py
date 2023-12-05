@@ -145,7 +145,10 @@ try:
         event, values = window.read(timeout=100)
         try:
             success_value, dps_link = result_queue.get_nowait()
-            upload_wingman(dps_link)
+            if (success_value == True or checkbox_status == True) and no_wingman == False:
+                upload_wingman(dps_link)
+            else:
+                print(get_current_time(),"Not pushing to wingman")
             link_collection.append((success_value, dps_link))
             if dps_link == "skip":
                 continue
