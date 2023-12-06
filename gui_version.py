@@ -54,7 +54,7 @@ def on_moved(event):
             historicalSize = os.path.getsize(event.dest_path)
             time.sleep(5)
         print(get_current_time(), event.dest_path.split(path)[1],"log creation has now finished")
-        window.start_thread(lambda: dpsreport_fixed(event.dest_path, 1, result_queue), ('-THREAD-', '-THEAD ENDED-'))
+        window.start_thread(lambda: dpsreport_fixed(event.dest_path, 0, result_queue), ('-THREAD-', '-THEAD ENDED-'))
 
 def get_current_time():
     ts = time.time()
@@ -73,21 +73,20 @@ def upload_wingman(dps_link):
 
 
 def dpsreport_fixed(file_to_upload, domain, result_queue):
-    if domain == 1:
+    domain = domain % 3
+    if domain == 0:
         url = "https://dps.report/uploadContent"
-    elif domain == 2:
+    elif domain == 1:
         url = "https://b.dps.report/uploadContent"
-    elif domain == 3:
+    elif domain == 2:
         url = "http://a.dps.report/uploadContent" 
-    else:
-        return(False,"skip")
     files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
     data = {'json': '1', 'generator': 'ei'}
     headers = {'Accept': 'application/json'}
     try:
         response = requests.post(url, files=files, data=data, timeout=30, headers=headers)
     except Exception as e:
-        print(get_current_time(),"Error, retrying: ", e)
+        print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
         time.sleep(2**domain) #exponential backoff
         return dpsreport_fixed(file_to_upload, domain+1, result_queue)
     data = response.json()
