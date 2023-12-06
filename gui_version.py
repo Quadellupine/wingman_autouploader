@@ -73,7 +73,7 @@ def upload_wingman(dps_link):
 
 
 def dpsreport_fixed(file_to_upload, domain, result_queue):
-    if domain >= 100:
+    if domain >= 20:
         print(get_current_time(),"Reached 100 retries. Aborting.")
         return(False, "skip")
     domain = domain % 3
