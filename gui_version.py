@@ -88,11 +88,11 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
     headers = {'Accept': 'application/json'}
     try:
         response = requests.post(url, files=files, data=data, timeout=30, headers=headers)
+        data = response.json()
     except Exception as e:
         print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
         time.sleep(2**domain) #exponential backoff
         return dpsreport_fixed(file_to_upload, domain+1, result_queue)
-    data = response.json()
     dps_link = data['permalink']
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", data['permalink'])
