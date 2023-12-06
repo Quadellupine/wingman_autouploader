@@ -89,7 +89,7 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
     except Exception as e:
         print(get_current_time(),"Error, retrying: ", e)
         time.sleep(2**domain) #exponential backoff
-        response = dpsreport_fixed(file_to_upload, domain+1)
+        return dpsreport_fixed(file_to_upload, domain+1)
     data = response.json()
     dps_link = data['permalink']
     success_value = data.get('encounter', {}).get('success')
