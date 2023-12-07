@@ -88,6 +88,8 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
     headers = {'Accept': 'application/json'}
     try:
         response = requests.post(url, files=files, data=data, timeout=30, headers=headers)
+        # Make the response is actually there?? idk at this point
+        time.sleep(6)
         data = response.json()
         dps_link = data['permalink']
     except Exception as e:
