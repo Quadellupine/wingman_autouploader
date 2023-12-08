@@ -76,12 +76,11 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
     if domain >= 20:
         print(get_current_time(),"Reached 100 retries. Aborting.")
         return(False, "skip")
-    domain = domain % 3
-    if domain == 0:
+    if domain % 3 == 0:
         url = "https://dps.report/uploadContent"
-    elif domain == 1:
+    elif domain % 3 == 1:
         url = "https://b.dps.report/uploadContent"
-    elif domain == 2:
+    elif domain % 3 == 2:
         url = "http://a.dps.report/uploadContent" 
     files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
     data = {'json': '1', 'generator': 'ei'}
