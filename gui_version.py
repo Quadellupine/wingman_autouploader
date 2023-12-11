@@ -145,7 +145,7 @@ if getattr(sys, 'frozen', False):
 else:
     base_dir="."
 icon_path = os.path.join(base_dir, 'icon.ico')
-window = sg.Window('Autouploader', layout, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,470), icon="icon.ico")
+window = sg.Window('Autouploader', layout, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,500), icon="icon.ico")
 window.set_icon(icon_path)
 patterns = ["*"]
 ignore_patterns = None

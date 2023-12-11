@@ -50,7 +50,13 @@ def on_moved(event):
             historicalSize = os.path.getsize(event.dest_path)
             time.sleep(1)
         print(get_current_time(), event.dest_path.split(path)[1]," log creation has now finished")
-        upload_dpsreport(event.dest_path, 1)
+        dps_link, success_value = upload_dpsreport(event.dest_path, 1)
+        if (success_value == True or pushwipes == True) and no_wingman == False:
+                    upload_wingman(dps_link)
+        else:
+            print(get_current_time(),"Not pushing to wingman")
+        print("-----------------------------------------------------------------------------------")
+
 
 def get_current_time():
     ts = time.time()
@@ -119,7 +125,7 @@ def upload_dpsreport(file_to_upload, domain):
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", dps_link)
     print(get_current_time(),"Success:",success_value, "| Duration:", get_json_duration(dps_link))
-    print("-----------------------------------------------------------------------------------")
+    return dps_link, success_value
 
 
 
