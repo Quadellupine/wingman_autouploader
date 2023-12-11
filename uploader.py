@@ -112,9 +112,12 @@ def upload_dpsreport(file_to_upload, domain):
         return upload_dpsreport(file_to_upload, domain+1)
     success_value = data.get('encounter', {}).get('success')
     duration = data.get('encounter', {}).get('duration')
+    test = data['evtc']
+    print(test)
     duration = convert_time(duration)
     print(get_current_time(),"permalink:", data['permalink'])
     print(get_current_time(),"Success:",success_value, "| Duration:", duration)
+    print("-----------------------------------------------------------------------------------")
 
 
 
