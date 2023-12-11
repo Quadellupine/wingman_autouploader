@@ -72,11 +72,6 @@ def get_json_duration(dps_link):
     duration = parts[0]+parts[1]
     return duration
 
-def convert_time(duration):
-    minutes, seconds = divmod(duration, 60)
-    duration =  '{:02d}m:{:02d}s'.format(int(minutes), int(seconds))
-    duration = duration.strip()
-    return duration
 
 def upload_wingman(dps_link):
     url = "https://gw2wingman.nevermindcreations.de/api/importLogQueued"
@@ -110,12 +105,10 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
         time.sleep(2**domain) #exponential backoff
         return dpsreport_fixed(file_to_upload, domain+1, result_queue)
     success_value = data.get('encounter', {}).get('success')
-    duration = data.get('encounter', {}).get('duration')
-    duration = convert_time(duration)
     print(get_current_time(),"permalink:", data['permalink'])
     print(get_current_time(),"Success:",success_value, "| Duration:", get_json_duration(dps_link))
-    result_queue.put((success_value, dps_link, duration))
-    return success_value, dps_link, duration
+    result_queue.put((success_value, dps_link))
+    return success_value, dps_link
 
 def is_shitlog(dps_link):
     shitlogs =[
@@ -179,7 +172,7 @@ try:
         time.sleep(0.05)
         event, values = window.read(timeout=100)
         try:
-            success_value, dps_link, duration = result_queue.get_nowait()
+            success_value, dps_link= result_queue.get_nowait()
             bool_shitlog = is_shitlog(dps_link)
             # Filter logs that nobody wants to see anyways...
             if (bool_shitlog and not filter_shitlogs) or (not bool_shitlog):

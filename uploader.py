@@ -74,12 +74,6 @@ def is_shitlog(dps_link):
             return True
     return False
 
-def convert_time(duration):
-    minutes, seconds = divmod(duration, 60)
-    duration =  '{:02d}m:{:02d}s'.format(int(minutes), int(seconds))
-    duration = duration.strip()
-    return duration
-
 def upload_wingman(dps_link):
     url = "https://gw2wingman.nevermindcreations.de/api/importLogQueued"
     params = {"link": dps_link, 'antibot': 'true'}
@@ -92,6 +86,8 @@ def get_json_duration(dps_link):
     response = requests.get(url)
     content = response.json()
     duration = content.get("duration")
+    parts = duration.split()
+    duration = parts[0]+parts[1]
     return duration
 
 def upload_dpsreport(file_to_upload, domain):
@@ -118,8 +114,6 @@ def upload_dpsreport(file_to_upload, domain):
         time.sleep(2**domain) #exponential backoff
         return upload_dpsreport(file_to_upload, domain+1)
     success_value = data.get('encounter', {}).get('success')
-    duration = data.get('encounter', {}).get('duration')
-    duration = convert_time(duration)
     print(get_current_time(),"permalink:", dps_link)
     print(get_current_time(),"Success:",success_value, "| Duration:", get_json_duration(dps_link))
     print("-----------------------------------------------------------------------------------")
