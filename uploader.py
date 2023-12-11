@@ -87,6 +87,12 @@ def upload_wingman(dps_link):
     data = response.json()
     print(get_current_time(),data['note'])
 
+def get_json(dps_link):
+    url = "https://dps.report/getJson"
+    data = {'permalink': dps_link}
+    response = requests.post(url, data=data, timeout=30)
+    print(response)
+
 def upload_dpsreport(file_to_upload, domain):
     if domain >= 20:
         print(get_current_time(),"Reached 100 retries. Aborting.")
@@ -112,10 +118,9 @@ def upload_dpsreport(file_to_upload, domain):
         return upload_dpsreport(file_to_upload, domain+1)
     success_value = data.get('encounter', {}).get('success')
     duration = data.get('encounter', {}).get('duration')
-    test = data['evtc']
-    print(test)
     duration = convert_time(duration)
-    print(get_current_time(),"permalink:", data['permalink'])
+    print(get_current_time(),"permalink:", dps_link)
+    get_json(dps_link)
     print(get_current_time(),"Success:",success_value, "| Duration:", duration)
     print("-----------------------------------------------------------------------------------")
 
