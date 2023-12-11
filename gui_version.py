@@ -78,24 +78,28 @@ def upload_wingman(dps_link):
 
 
 def dpsreport_fixed(file_to_upload, domain, result_queue):
-    domain = domain % 3
-    if domain == 0:
+    if domain >= 20:
+        print(get_current_time(),"Reached 100 retries. Aborting.")
+        return(False, "skip")
+    if domain % 3 == 0:
         url = "https://dps.report/uploadContent"
-    elif domain == 1:
+    elif domain % 3 == 1:
         url = "https://b.dps.report/uploadContent"
-    elif domain == 2:
+    elif domain % 3 == 2:
         url = "http://a.dps.report/uploadContent" 
     files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
     data = {'json': '1', 'generator': 'ei'}
     headers = {'Accept': 'application/json'}
     try:
         response = requests.post(url, files=files, data=data, timeout=30, headers=headers)
+        # Make the response is actually there?? idk at this point
+        time.sleep(6)
+        data = response.json()
+        dps_link = data['permalink']
     except Exception as e:
         print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
         time.sleep(2**domain) #exponential backoff
         return dpsreport_fixed(file_to_upload, domain+1, result_queue)
-    data = response.json()
-    dps_link = data['permalink']
     success_value = data.get('encounter', {}).get('success')
     duration = data.get('encounter', {}).get('duration')
     duration = convert_time(duration)
