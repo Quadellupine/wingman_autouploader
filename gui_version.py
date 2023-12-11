@@ -72,7 +72,7 @@ def get_json_duration(dps_link):
         parts = duration.split()
         duration = parts[0]+parts[1]
     except:
-        duration = 0
+        duration = "0"
     return duration
 
 
