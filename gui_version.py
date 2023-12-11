@@ -63,6 +63,13 @@ def get_current_time():
     ts = "["+ts+"]:"
     return ts
 
+def get_json_duration(dps_link):
+    url = "https://dps.report/getJson?permalink="+dps_link
+    response = requests.get(url)
+    content = response.json()
+    duration = content.get("duration")
+    return duration
+
 def convert_time(duration):
     minutes, seconds = divmod(duration, 60)
     duration =  '{:02d}m:{:02d}s'.format(int(minutes), int(seconds))
@@ -104,7 +111,7 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
     duration = data.get('encounter', {}).get('duration')
     duration = convert_time(duration)
     print(get_current_time(),"permalink:", data['permalink'])
-    print(get_current_time(),"Success:",success_value, "| Duration:", duration)
+    print(get_current_time(),"Success:",success_value, "| Duration:", get_json_duration(dps_link))
     result_queue.put((success_value, dps_link, duration))
     return success_value, dps_link, duration
 
@@ -185,7 +192,7 @@ try:
                 # Only printing successful logs to GUI or if the user wants wipes
 
                 if success_value or showwipes:
-                    window['text'].print("[",duration,"]",dps_link)
+                    window['text'].print("[",get_json_duration(dps_link),"]",dps_link)
         except queue.Empty:
             pass
         # -- Check for events --B
