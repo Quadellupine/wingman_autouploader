@@ -90,7 +90,7 @@ def upload_wingman(dps_link):
 def get_json(dps_link):
     url = "https://dps.report/getJson"
     data = {'permalink': dps_link}
-    response = requests.post(url, data=data, timeout=30)
+    response = requests.get(url, data=data, timeout=30)
     print(response)
 
 def upload_dpsreport(file_to_upload, domain):
