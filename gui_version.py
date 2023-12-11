@@ -64,12 +64,15 @@ def get_current_time():
     return ts
 
 def get_json_duration(dps_link):
-    url = "https://dps.report/getJson?permalink="+dps_link
-    response = requests.get(url)
-    content = response.json()
-    duration = content.get("duration")
-    parts = duration.split()
-    duration = parts[0]+parts[1]
+    try:
+        url = "https://dps.report/getJson?permalink="+dps_link
+        response = requests.get(url)
+        content = response.json()
+        duration = content.get("duration")
+        parts = duration.split()
+        duration = parts[0]+parts[1]
+    except:
+        duration = 0
     return duration
 
 

@@ -82,12 +82,15 @@ def upload_wingman(dps_link):
     print(get_current_time(),data['note'])
 
 def get_json_duration(dps_link):
-    url = "https://dps.report/getJson?permalink="+dps_link
-    response = requests.get(url)
-    content = response.json()
-    duration = content.get("duration")
-    parts = duration.split()
-    duration = parts[0]+parts[1]
+    try:
+        url = "https://dps.report/getJson?permalink="+dps_link
+        response = requests.get(url)
+        content = response.json()
+        duration = content.get("duration")
+        parts = duration.split()
+        duration = parts[0]+parts[1]
+    except:
+        duration = 0
     return duration
 
 def upload_dpsreport(file_to_upload, domain):
