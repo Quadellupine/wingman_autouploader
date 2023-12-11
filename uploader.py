@@ -88,10 +88,11 @@ def upload_wingman(dps_link):
     print(get_current_time(),data['note'])
 
 def get_json(dps_link):
-    url = "https://dps.report/getJson"
-    data = {'permalink': dps_link}
-    response = requests.get(url, data=data, timeout=30)
-    print(response)
+    url = "https://dps.report/getJson?permalink="+dps_link
+    response = requests.get(url)
+    content = response.json()
+    duration = content.get("duration")
+    print(duration)
 
 def upload_dpsreport(file_to_upload, domain):
     if domain >= 20:
