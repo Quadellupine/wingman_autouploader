@@ -68,6 +68,8 @@ def get_json_duration(dps_link):
     response = requests.get(url)
     content = response.json()
     duration = content.get("duration")
+    parts = duration.split()
+    duration = parts[0]+parts[1]
     return duration
 
 def convert_time(duration):
