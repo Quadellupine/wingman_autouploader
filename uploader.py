@@ -67,46 +67,30 @@ def upload_wingman(dps_link):
     data = response.json()
     print(get_current_time(),data['note'])
 
-
 def upload_dpsreport(file_to_upload, domain):
-    if domain == 1:
+    domain = domain % 3
+    if domain == 0:
         url = "https://dps.report/uploadContent"
-    elif domain == 2:
+    elif domain == 1:
         url = "https://b.dps.report/uploadContent"
-    elif domain == 3:
-        url = "http://a.dps.report/uploadContent"  
+    elif domain == 2:
+        url = "http://a.dps.report/uploadContent" 
     files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
     data = {'json': '1', 'generator': 'ei'}
-
-    response = requests.post(url, files=files, data=data)
-
-    if response.status_code != 200:        
-        success_value = False
-        dps_link = "skip"
-        print(get_current_time(),"An error has occured while uploadng to dps.report")
-        print(get_current_time(),"Errorcode:",response.status_code)
-        if domain==1:
-            print(get_current_time(),"Trying b.dps.report")
-            time.sleep(3)
-            success_value,dps_link = upload_dpsreport(file_to_upload, 2)
-        elif domain ==2:
-            time.sleep(3)
-            print(get_current_time(), "Trying a.dps.report")
-            success_value,dps_link = upload_dpsreport(file_to_upload, 3)
-        return success_value, dps_link
-
+    headers = {'Accept': 'application/json'}
+    try:
+        response = requests.post(url, files=files, data=data, timeout=30, headers=headers)
+    except Exception as e:
+        print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
+        time.sleep(2**domain) #exponential backoff
+        return upload_dpsreport(file_to_upload, domain+1)
     data = response.json()
     dps_link = data['permalink']
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", data['permalink'])
     print(get_current_time(),"Success:",success_value)
-    if (success_value == True or pushwipes) and no_wingman == False:
-            upload_wingman(dps_link)
-    else:
-        print(get_current_time(),"Not pushing to wingman")
-
-    print("------------------------------------------------------------------------------------------")
     return success_value, dps_link
+
 
 
 
