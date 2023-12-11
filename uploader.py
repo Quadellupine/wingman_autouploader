@@ -15,7 +15,7 @@ config_file_path = "config.ini"
 if not os.path.exists(config_file_path):
     with open("config.ini", 'w') as file:
         # Create .ini file with some defaults
-        file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Dark Teal 12\npushwipes = False\nno_wingman = False")
+        file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Dark Teal 12\npushwipes = False\nno_wingman = False\nfilter_shitlogs = True")
         file.close()
     config.read(config_file_path)
         
@@ -59,6 +59,26 @@ def get_current_time():
     ts = "["+ts+"]:"
     return ts
 
+def is_shitlog(dps_link):
+    shitlogs =[
+    "_trio",
+    "_tc",
+    "_esc",
+    "_bk",
+    "_eyes",
+    "_se",
+    "_rr"
+    ]
+    for substring in shitlogs:
+        if substring in dps_link:
+            return True
+    return False
+
+def convert_time(duration):
+    minutes, seconds = divmod(duration, 60)
+    duration =  '{:02d}m:{:02d}s'.format(int(minutes), int(seconds))
+    duration = duration.strip()
+    return duration
 
 def upload_wingman(dps_link):
     url = "https://gw2wingman.nevermindcreations.de/api/importLogQueued"
@@ -68,28 +88,33 @@ def upload_wingman(dps_link):
     print(get_current_time(),data['note'])
 
 def upload_dpsreport(file_to_upload, domain):
-    domain = domain % 3
-    if domain == 0:
+    if domain >= 20:
+        print(get_current_time(),"Reached 100 retries. Aborting.")
+        return(False, "skip")
+    if domain % 3 == 0:
         url = "https://dps.report/uploadContent"
-    elif domain == 1:
+    elif domain % 3 == 1:
         url = "https://b.dps.report/uploadContent"
-    elif domain == 2:
+    elif domain % 3 == 2:
         url = "http://a.dps.report/uploadContent" 
     files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
     data = {'json': '1', 'generator': 'ei'}
     headers = {'Accept': 'application/json'}
     try:
         response = requests.post(url, files=files, data=data, timeout=30, headers=headers)
+        # Make the response is actually there?? idk at this point
+        time.sleep(6)
+        data = response.json()
+        dps_link = data['permalink']
     except Exception as e:
         print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
         time.sleep(2**domain) #exponential backoff
         return upload_dpsreport(file_to_upload, domain+1)
-    data = response.json()
-    dps_link = data['permalink']
     success_value = data.get('encounter', {}).get('success')
+    duration = data.get('encounter', {}).get('duration')
+    duration = convert_time(duration)
     print(get_current_time(),"permalink:", data['permalink'])
-    print(get_current_time(),"Success:",success_value)
-    return success_value, dps_link
+    print(get_current_time(),"Success:",success_value, "| Duration:", duration)
 
 
 

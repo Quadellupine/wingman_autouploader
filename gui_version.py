@@ -18,7 +18,7 @@ config_file_path = "config.ini"
 if not os.path.exists(config_file_path):
     with open("config.ini", 'w') as file:
         # Create .ini file with some defaults
-        file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Dark Teal 12\npushwipes = False\nno_wingman = False\nfilter_shitlogs = False")
+        file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Dark Teal 12\npushwipes = False\nno_wingman = False\nfilter_shitlogs = True")
         file.close()
     config.read(config_file_path)
         
@@ -170,7 +170,8 @@ try:
         try:
             success_value, dps_link, duration = result_queue.get_nowait()
             bool_shitlog = is_shitlog(dps_link)
-            if not bool_shitlog:
+            # Filter logs that nobody wants to see anyways...
+            if not bool_shitlog and filter_shitlogs:
                 checkbox_status = values['bool_wingman']
                 if (success_value == True or checkbox_status == True) and no_wingman == False:
                     upload_wingman(dps_link)
@@ -186,7 +187,7 @@ try:
                     window['text'].print("[",duration,"]",dps_link)
         except queue.Empty:
             pass
-        # -- Check for events --
+        # -- Check for events --B
         if event == sg.WIN_CLOSED or event == 'Exit':
             with open(config_file_path, 'w') as configfile:
                 config.write(configfile)
