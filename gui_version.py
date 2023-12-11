@@ -25,7 +25,7 @@ if not os.path.exists(config_file_path):
 # Apply retrieved config
 try:
     config.read(config_file_path)
-    checkbox_default = config.getboolean('Settings', 'showwipes')
+    showwipes = config.getboolean('Settings', 'showwipes')
     path = config["Settings"]["logpath"]
     sg.theme(config["Settings"]["theme"])
     pushwipes = config.getboolean('Settings', 'pushwipes')
@@ -130,8 +130,10 @@ layout = [
      sg.Button("Copy last to Clipboard", size=(26, 2))],
      [sg.Button("Copy all to Clipboard", size=(26, 2)),
       sg.Button("Copy only Kills", size=(26,2))],
-     [sg.Checkbox("Show wipes", key='wipes', default=checkbox_default),
-      sg.Checkbox("Upload wipes to Wingman", key ='bool_wingman', default=pushwipes)]
+     [sg.Checkbox("Show wipes", key='wipes', default=showwipes),
+      sg.Checkbox("Upload wipes to Wingman", key ='bool_wingman', default=pushwipes)],
+      [sg.Checkbox("Filter shitlogs", key ='shitlog_checkbox', default=filter_shitlogs),
+        sg.Checkbox("Disable Wingman Upload", key='global_wingman', default=no_wingman)]
 ]
 if getattr(sys, 'frozen', False):
     base_dir = sys._MEIPASS
@@ -171,9 +173,8 @@ try:
             success_value, dps_link, duration = result_queue.get_nowait()
             bool_shitlog = is_shitlog(dps_link)
             # Filter logs that nobody wants to see anyways...
-            if not bool_shitlog and filter_shitlogs:
-                checkbox_status = values['bool_wingman']
-                if (success_value == True or checkbox_status == True) and no_wingman == False:
+            if (bool_shitlog and not filter_shitlogs) or (not bool_shitlog):
+                if (success_value == True or pushwipes == True) and no_wingman == False:
                     upload_wingman(dps_link)
                 else:
                     print(get_current_time(),"Not pushing to wingman")
@@ -182,8 +183,8 @@ try:
                     continue
                 # --------- Append to text content --------
                 # Only printing successful logs to GUI or if the user wants wipes
-                checkbox_status = values['wipes']
-                if success_value or checkbox_status:
+
+                if success_value or showwipes:
                     window['text'].print("[",duration,"]",dps_link)
         except queue.Empty:
             pass
@@ -210,12 +211,29 @@ try:
                     
         elif values['wipes'] == True:
             config.set('Settings', 'ShowWipes', 'True')
+            showwipes = True
         elif values['wipes'] == False:
             config.set('Settings', 'ShowWipes', 'False')
+            showwipes = False
         if values['bool_wingman'] == True:
             config.set('Settings', 'pushwipes', 'True')
+            pushwipes = True
         elif values['bool_wingman'] == False:
             config.set('Settings', 'pushwipes', 'False')
+            pushwipes = False
+        if values['global_wingman'] == True:
+            config.set('Settings', 'no_wingman', 'True')
+            no_wingman = True
+        elif values['global_wingman'] == False:
+            config.set('Settings', 'no_wingman', 'False')
+            no_wingman = False
+        if values['shitlog_checkbox'] == True:
+            config.set('Settings', 'filter_shitlogs', 'True')
+            filter_shitlogs = True
+        elif values['shitlog_checkbox'] == False:
+            config.set('Settings', 'filter_shitlogs', 'False')
+            filter_shitlogs = False
+            
 except KeyboardInterrupt:
     my_observer.stop()
     my_observer.join()
