@@ -9,3 +9,4 @@ config.ini
 *.spec
 test.py
 *.exe
+*:.txt
