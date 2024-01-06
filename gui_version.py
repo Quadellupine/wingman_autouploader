@@ -105,7 +105,7 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
         dps_link = data['permalink']
     except Exception as e:
         print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
-        time.sleep(2**domain) #exponential backoff
+        time.sleep(2*domain) #(not) exponential backoff
         return dpsreport_fixed(file_to_upload, domain+1, result_queue)
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", data['permalink'])
@@ -127,18 +127,24 @@ def is_shitlog(dps_link):
         if substring in dps_link:
             return True
     return False
-
+# Wow binary tables actually being useful for once
+def reprint():
+    window["text"].update("")
+    for link in link_collection:
+        if link[0] or showwipes:
+            if not (is_shitlog(link[1]) and filter_shitlogs):
+                window["text"].print(link[1])
 # ----------------  Create Form  ----------------
 layout = [
     [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)],
-    [sg.Button("Exit", size=(26, 2)),
+    [sg.Button("Reset", size=(26, 2)),
      sg.Button("Copy last to Clipboard", size=(26, 2))],
      [sg.Button("Copy all to Clipboard", size=(26, 2)),
       sg.Button("Copy only Kills", size=(26,2))],
      [sg.Checkbox("Show wipes", key='wipes', default=showwipes),
       sg.Checkbox("Upload wipes to Wingman", key ='bool_wingman', default=pushwipes)],
       [sg.Checkbox("Filter shitlogs", key ='shitlog_checkbox', default=filter_shitlogs),
-        sg.Checkbox("Disable Wingman Upload", key='global_wingman', default=no_wingman)]
+        sg.Checkbox("Disable Wingman Upload", key='global_wingman', default=no_wingman)],
 ]
 if getattr(sys, 'frozen', False):
     base_dir = sys._MEIPASS
@@ -167,6 +173,10 @@ start_time = time.time()
 # Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
 link_collection = []
+link_collection.append((True, "success_log"))
+link_collection.append((False, "fail_log"))
+link_collection.append((False, "fail_log_trio"))
+link_collection.append((True, "success_log_trio"))
 
 
 
@@ -189,8 +199,8 @@ try:
                 # --------- Append to text content --------
                 # Only printing successful logs to GUI or if the user wants wipes
 
-                if success_value or showwipes:
-                    window['text'].print("[",get_json_duration(dps_link),"]",dps_link)
+                if success_value or showwipes and (not bool_shitlog):
+                    window["text"].print("[",get_json_duration(dps_link),"]",dps_link)
         except queue.Empty:
             pass
         # -- Check for events --B
@@ -213,13 +223,17 @@ try:
                 if entry[0] == True:
                     s = s+(entry[1])+"\n"
             pyperclip.copy(s)
-                    
+        elif event == "Reset":
+            window["text"].update("")
+            link_collection = []                    
         elif values['wipes'] == True:
             config.set('Settings', 'ShowWipes', 'True')
             showwipes = True
+            reprint()          
         elif values['wipes'] == False:
             config.set('Settings', 'ShowWipes', 'False')
             showwipes = False
+            reprint()
         if values['bool_wingman'] == True:
             config.set('Settings', 'pushwipes', 'True')
             pushwipes = True
@@ -234,10 +248,12 @@ try:
             no_wingman = False
         if values['shitlog_checkbox'] == True:
             config.set('Settings', 'filter_shitlogs', 'True')
-            filter_shitlogs = True
+            filter_shitlogs = True 
+            reprint()               
         elif values['shitlog_checkbox'] == False:
             config.set('Settings', 'filter_shitlogs', 'False')
             filter_shitlogs = False
+            reprint()
             
 except KeyboardInterrupt:
     my_observer.stop()

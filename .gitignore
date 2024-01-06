@@ -8,3 +8,4 @@ dist/
 config.ini
 *.spec
 test.py
+*.exe
