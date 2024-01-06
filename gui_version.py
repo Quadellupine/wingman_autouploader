@@ -174,7 +174,7 @@ start_time = time.time()
 # Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
 link_collection = []
-link_collection.append((True, "jsapdofiaj"))
+#link_collection.append((True, "jsapdofiaj"))
 #link_collection.append((False, "suufz09"))
 
 
