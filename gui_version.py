@@ -173,12 +173,6 @@ start_time = time.time()
 # Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
 link_collection = []
-link_collection.append((True, "success_log"))
-link_collection.append((False, "fail_log"))
-link_collection.append((False, "fail_log_trio"))
-link_collection.append((True, "success_log_trio"))
-
-
 
 try:
     while True:
