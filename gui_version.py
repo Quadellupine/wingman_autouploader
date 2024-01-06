@@ -134,6 +134,7 @@ def reprint():
         if link[0] or showwipes:
             if not (is_shitlog(link[1]) and filter_shitlogs):
                 window["text"].print(link[1])
+# Begin Main
 # ----------------  Create Form  ----------------
 layout = [
     [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)],
