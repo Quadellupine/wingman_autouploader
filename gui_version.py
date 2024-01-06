@@ -220,7 +220,7 @@ try:
         elif event == "Copy only Kills":
             s = ""
             for entry in link_collection:
-                if entry[0] == True:
+                if entry[0] == True and not (is_shitlog(entry[1]) and filter_shitlogs):
                     s = s+(entry[1])+"\n"
             pyperclip.copy(s)
         elif event == "Reset":
