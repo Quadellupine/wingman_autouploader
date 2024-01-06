@@ -174,6 +174,7 @@ start_time = time.time()
 seen_files = []
 link_collection = []
 
+
 try:
     while True:
         time.sleep(0.05)
@@ -209,7 +210,9 @@ try:
         elif event == "Copy all to Clipboard":
             s = ""
             for entry in link_collection:
-                s = s+(entry[1])+"\n"
+                if entry[0] or showwipes:
+                    if not (is_shitlog(entry[1]) and filter_shitlogs):
+                        s = s+(entry[1])+"\n"
             pyperclip.copy(s)
         elif event == "Copy only Kills":
             s = ""
