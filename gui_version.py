@@ -85,7 +85,7 @@ def upload_wingman(dps_link):
 
 
 def dpsreport_fixed(file_to_upload, domain, result_queue):
-    if domain >= 20:
+    if domain >= 15:
         print(get_current_time(),"Reached 100 retries. Aborting.")
         return(False, "skip")
     if domain % 3 == 0:
@@ -105,7 +105,7 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
         dps_link = data['permalink']
     except Exception as e:
         print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
-        time.sleep(2*domain) #(not) exponential backoff
+        time.sleep(2**domain) #exponential backoff
         return dpsreport_fixed(file_to_upload, domain+1, result_queue)
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", data['permalink'])
