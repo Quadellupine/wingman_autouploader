@@ -102,6 +102,7 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
         # Make the response is actually there?? idk at this point
         time.sleep(6)
         data = response.json()
+        #print(data)
         dps_link = data['permalink']
     except Exception as e:
         print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
@@ -133,7 +134,7 @@ def reprint():
     for link in link_collection:
         if link[0] or showwipes:
             if not (is_shitlog(link[1]) and filter_shitlogs):
-                window["text"].print(link[1])
+                window["text"].print("[",get_json_duration(dps_link),"]",link[1])
 # Begin Main
 # ----------------  Create Form  ----------------
 layout = [
