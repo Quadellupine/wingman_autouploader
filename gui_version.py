@@ -11,8 +11,6 @@ import configparser
 import queue
 # Queue for multithreading
 result_queue = queue.Queue()
-changed_shitlog_state_last_iteration = False
-changed_wipe_state_last_iteration = False
 # Load configuration
 config = configparser.ConfigParser()
 config_file_path = "config.ini"

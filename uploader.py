@@ -119,7 +119,7 @@ def upload_dpsreport(file_to_upload, domain):
         data = response.json()
         dps_link = data['permalink']
     except Exception as e:
-        print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
+        print(get_current_time(),"Error, retrying(",2*domain,"s): ", e)
         time.sleep(2**domain) #exponential backoff
         return upload_dpsreport(file_to_upload, domain+1)
     success_value = data.get('encounter', {}).get('success')
