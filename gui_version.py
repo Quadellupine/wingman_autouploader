@@ -11,7 +11,8 @@ import configparser
 import queue
 # Queue for multithreading
 result_queue = queue.Queue()
-
+changed_shitlog_state_last_iteration = False
+changed_wipe_state_last_iteration = False
 # Load configuration
 config = configparser.ConfigParser()
 config_file_path = "config.ini"
@@ -175,6 +176,8 @@ start_time = time.time()
 # Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
 link_collection = []
+result_queue.put((True, "_trio"))
+result_queue.put((False, "_trio"))
 
 try:
     while True:
@@ -208,6 +211,8 @@ try:
         elif event == "Copy last to Clipboard":
             last = window["text"].get()
             last = last.split("\n")[-1]
+            if last != "":
+                last = last.split("]")[1]
             pyperclip.copy(last)
         elif event == "Copy all to Clipboard":
             s = ""
@@ -224,15 +229,19 @@ try:
             pyperclip.copy(s)
         elif event == "Reset":
             window["text"].update("")
-            link_collection = []                    
+            link_collection = []  
+        # Show wipes                  
         elif values['wipes'] == True:
             config.set('Settings', 'ShowWipes', 'True')
-            showwipes = True
-            reprint()          
+            if values["wipes"] != showwipes:
+                showwipes = True
+                reprint()          
         elif values['wipes'] == False:
             config.set('Settings', 'ShowWipes', 'False')
-            showwipes = False
-            reprint()
+            if values["wipes"] != showwipes:
+                showwipes = False
+                reprint()
+        # Push to wingman
         if values['bool_wingman'] == True:
             config.set('Settings', 'pushwipes', 'True')
             pushwipes = True
@@ -245,14 +254,17 @@ try:
         elif values['global_wingman'] == False:
             config.set('Settings', 'no_wingman', 'False')
             no_wingman = False
+        # Shitlogs
         if values['shitlog_checkbox'] == True:
             config.set('Settings', 'filter_shitlogs', 'True')
-            filter_shitlogs = True 
-            reprint()               
+            if values['shitlog_checkbox'] != filter_shitlogs:
+                filter_shitlogs = True 
+                reprint()               
         elif values['shitlog_checkbox'] == False:
             config.set('Settings', 'filter_shitlogs', 'False')
-            filter_shitlogs = False
-            reprint()
+            if values['shitlog_checkbox'] != filter_shitlogs:
+                filter_shitlogs = False
+                reprint()
             
 except KeyboardInterrupt:
     my_observer.stop()
