@@ -176,8 +176,8 @@ start_time = time.time()
 # Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
 link_collection = []
-result_queue.put((True, "_trio"))
-result_queue.put((False, "_trio"))
+#result_queue.put((True, "_trio"))
+#result_queue.put((False, "_trio"))
 
 try:
     while True:
