@@ -176,8 +176,8 @@ start_time = time.time()
 # Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
 link_collection = []
-result_queue.put((True, "_trio", 0))
-result_queue.put((False, "_trio", 0))
+#result_queue.put((True, "_trio", 0))
+#result_queue.put((False, "_trio", 0))
 
 try:
     while True:
@@ -273,7 +273,7 @@ except Exception as e:
     print("Oh no!")
     exception = str(e)
     now = datetime.now()
-    filename = now.strftime("%H:%M:%S")
+    filename = now.strftime("%d/%m/%Y_%H:%M:%S")
     filename = filename+"_crash.txt"
     f = open(filename, "x")
     f.write(exception)
