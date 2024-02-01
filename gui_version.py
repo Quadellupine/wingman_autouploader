@@ -109,8 +109,8 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
         return dpsreport_fixed(file_to_upload, domain+1, result_queue)
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", data['permalink'])
-    print(get_current_time(),"Success:",success_value, "| Duration:", duration)
     duration = get_json_duration(dps_link)
+    print(get_current_time(),"Success:",success_value, "| Duration:", duration)
     result_queue.put((success_value, dps_link, duration))
     return success_value, dps_link, duration
 
@@ -176,8 +176,8 @@ start_time = time.time()
 # Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
 link_collection = []
-#result_queue.put((True, "_trio", 0))
-#result_queue.put((False, "_trio", 0))
+result_queue.put((True, "_trio", 0))
+result_queue.put((False, "_trio", 0))
 
 try:
     while True:
