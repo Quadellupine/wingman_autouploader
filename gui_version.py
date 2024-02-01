@@ -136,17 +136,17 @@ def reprint():
                 window["text"].print("[",get_json_duration(dps_link),"]",link[1])
 # Begin Main
 # ----------------  Create Form  ----------------
-layout = [
-    [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)],
-    [sg.Button("Reset", size=(26, 2)),
-     sg.Button("Copy last to Clipboard", size=(26, 2))],
-     [sg.Button("Copy all to Clipboard", size=(26, 2)),
-      sg.Button("Copy only Kills", size=(26,2))],
-     [sg.Checkbox("Show wipes", key='wipes', default=showwipes),
-      sg.Checkbox("Upload wipes to Wingman", key ='bool_wingman', default=pushwipes)],
-      [sg.Checkbox("Filter shitlogs", key ='shitlog_checkbox', default=filter_shitlogs),
-        sg.Checkbox("Disable Wingman Upload", key='global_wingman', default=no_wingman)],
-]
+textbox = [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)]
+button_row_one= [sg.Button("Reset", size=(26, 2)),
+     sg.Button("Copy last to Clipboard", size=(26, 2))]
+
+button_row_two =[sg.Button("Copy all to Clipboard", size=(26, 2)),
+      sg.Button("Copy only Kills", size=(26,2))]
+checkbox_one = [sg.Checkbox("Show wipes  ", key='wipes', default=showwipes),
+      sg.Checkbox("Upload wipes to Wingman", key ='bool_wingman', default=pushwipes)]
+checkbox_two = [sg.Checkbox("Filter shitlogs", key ='shitlog_checkbox', default=filter_shitlogs),
+        sg.Checkbox("Disable Wingman Upload", key='global_wingman', default=no_wingman)]
+layout = [textbox, button_row_one, button_row_two, checkbox_one, checkbox_two]
 if getattr(sys, 'frozen', False):
     base_dir = sys._MEIPASS
 else:
@@ -267,3 +267,14 @@ try:
 except KeyboardInterrupt:
     my_observer.stop()
     my_observer.join()
+except Exception as e:
+    print("Oh no!")
+    exception = str(e)
+    now = datetime.now()
+    filename = now.strftime("%H:%M:%S")
+    filename = filename+"_crash.txt"
+    f = open(filename, "x")
+    f.write(exception)
+    f.close()
+    
+    
