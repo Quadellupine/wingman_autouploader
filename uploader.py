@@ -101,7 +101,7 @@ def get_json_duration(dps_link):
 
 def upload_dpsreport(file_to_upload, domain):
     if domain >= 20:
-        print(get_current_time(),"Reached 100 retries. Aborting.")
+        print(get_current_time(),"Reached 20 retries. Aborting.")
         return(False, "skip")
     if domain % 3 == 0:
         url = "https://dps.report/uploadContent"
@@ -120,7 +120,7 @@ def upload_dpsreport(file_to_upload, domain):
         dps_link = data['permalink']
     except Exception as e:
         print(get_current_time(),"Error, retrying(",2*domain,"s): ", e)
-        time.sleep(2**domain) #exponential backoff
+        time.sleep(2*domain) #exponential backoff
         return upload_dpsreport(file_to_upload, domain+1)
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", dps_link)
