@@ -109,9 +109,10 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
         return dpsreport_fixed(file_to_upload, domain+1, result_queue)
     success_value = data.get('encounter', {}).get('success')
     print(get_current_time(),"permalink:", data['permalink'])
-    print(get_current_time(),"Success:",success_value, "| Duration:", get_json_duration(dps_link))
-    result_queue.put((success_value, dps_link))
-    return success_value, dps_link
+    print(get_current_time(),"Success:",success_value, "| Duration:", duration)
+    duration = get_json_duration(dps_link)
+    result_queue.put((success_value, dps_link, duration))
+    return success_value, dps_link, duration
 
 def is_shitlog(dps_link):
     shitlogs =[
@@ -129,11 +130,12 @@ def is_shitlog(dps_link):
     return False
 # Wow binary tables actually being useful for once
 def reprint():
+    print("reprinting...")
     window["text"].update("")
     for link in link_collection:
         if link[0] or showwipes:
             if not (is_shitlog(link[1]) and filter_shitlogs):
-                window["text"].print("[",get_json_duration(dps_link),"]",link[1])
+                window["text"].print("[",link[2],"]",link[1])
 # Begin Main
 # ----------------  Create Form  ----------------
 textbox = [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)]
@@ -174,15 +176,15 @@ start_time = time.time()
 # Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
 link_collection = []
-#result_queue.put((True, "_trio"))
-#result_queue.put((False, "_trio"))
+result_queue.put((True, "_trio", 0))
+result_queue.put((False, "_trio", 0))
 
 try:
     while True:
         time.sleep(0.05)
         event, values = window.read(timeout=100)
         try:
-            success_value, dps_link= result_queue.get_nowait()
+            success_value, dps_link, duration = result_queue.get_nowait()
             bool_shitlog = is_shitlog(dps_link)
             # Filter logs that nobody wants to see anyways...
             if (bool_shitlog and not filter_shitlogs) or (not bool_shitlog):
@@ -190,14 +192,14 @@ try:
                     upload_wingman(dps_link)
                 else:
                     print(get_current_time(),"Not pushing to wingman")
-                link_collection.append((success_value, dps_link))
+                link_collection.append((success_value, dps_link, duration))
                 if dps_link == "skip":
                     continue
                 # --------- Append to text content --------
                 # Only printing successful logs to GUI or if the user wants wipes
 
                 if success_value or showwipes and (not bool_shitlog):
-                    window["text"].print("[",get_json_duration(dps_link),"]",dps_link)
+                    window["text"].print("[",duration,"]",dps_link)
         except queue.Empty:
             pass
         # -- Check for events --B
