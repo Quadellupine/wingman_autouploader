@@ -17,7 +17,7 @@ config_file_path = "config.ini"
 if not os.path.exists(config_file_path):
     with open("config.ini", 'w') as file:
         # Create .ini file with some defaults
-        file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Dark Teal 12\npushwipes = False\nno_wingman = False\nfilter_shitlogs = True")
+        file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Topanga\npushwipes = False\nno_wingman = False\nfilter_shitlogs = True\nheight=500\nwidth=450")
         file.close()
     config.read(config_file_path)
         
@@ -30,6 +30,9 @@ try:
     pushwipes = config.getboolean('Settings', 'pushwipes')
     no_wingman = config.getboolean('Settings', 'no_wingman')
     filter_shitlogs = config.getboolean('Settings', 'filter_shitlogs')
+    height = config["Settings"]["height"]
+    width = config["Settings"]["width"]
+    size_tuple = (width, height)
 except:
     sg.popup("Malformed config.ini. Delete it to generate a clean one.",title="Error")
     exit()
@@ -154,7 +157,7 @@ if getattr(sys, 'frozen', False):
 else:
     base_dir="."
 icon_path = os.path.join(base_dir, 'icon.ico')
-window = sg.Window('Autouploader', layout, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=(450,500), icon="icon.ico")
+window = sg.Window('Autouploader', layout, auto_size_buttons=True, keep_on_top=False, grab_anywhere=True, resizable=True, size=size_tuple, icon="icon.ico")
 window.set_icon(icon_path)
 patterns = ["*"]
 ignore_patterns = None
