@@ -5,30 +5,28 @@ Does nothing fancy, it watches for new logs and uploads them to dps.report and t
 
 # Disclaimer: Use at your own risk
 I am trying my best, but I can't take responsibility for this app crashing or not working correctly. If you find any mistakes please let me know.
-# CLI Version
- ```pip install requests```
-# GUI Version
-This shit now has a GUI Version. Its bad and ugly, please improve it if you can. I've never made a GUI before and I still don't really want to. The GUI is multithreaded and there may be concurrency issues. I haven't found any but there may be. Packages required:<br>
-```pip install requests pysimplegui pyperclip configparser```<br>
-## config.ini
-On first run the Program will create a config.ini. You can specify a logpath in there if you want to. Ideally the path should have no spaces. The program checks all subfolders, so you can just specify your path to ```arcdps.cbtlogs```.<br>
-It is also possible to choose your own Theme by setting it in the generated .ini file. You can view all available themes here:<br>
-https://media.geeksforgeeks.org/wp-content/uploads/20200511200254/f19.jpg<br>
-Example: ```theme=Dark Brown 3```<br>
-Setting showwipes is only relevant for the GUI Version.<br>
-pushwipes dictates whether wipes should also be pushes to wingman.
-# How to use this on Windows
-While I originally made this for Linux but apparently MICROSOFT WINDOWS Users want to use this too. Here is a guide:
-1. Download the executable from the latest release
-2. Place in a folder you like and start it. It will create a config.ini
-3. Open the config.ini and add your logpath
-4. Restart the application. It should now be scanning the provided logpath for new logs created after the application was started.
-## Having an extra Window open is annoying
-That is tough. I personally park this on a hidden workspace. Windows has a similar feature called "Virtual Desktops" and you can access it with ```Windows + Tab```. Check out if you like it.
+# Windows
+1. Download the latest .exe from the "Release" page
+2. Stop your antivirus from blocking it
+3. It will create a config.ini file, put your log path into it
+# Linux
+Currently I am not providing a binary for Linux. 
+1. Install python, then install the dpendencies ```pysimplegui, pyperclip, requests, watchdog``` using
+pip
+2. Run the script using ```python3 gui_version.py``` or ```python3  uploader.py```
+3. It will create a config.ini file. Edit it to include your logpath
+# Some tips
+1. I usually place this window on a seperate workspace. On windows, you can access this feature using
+```Ẁindows + Tab```.
+2. You can choose your own theme. Check https://media.geeksforgeeks.org/wp-content/uploads/20200511200254/f19.jpg for the available themes.
+3. Please report any issues you have on this repo, and suggestions too. I will try to work on them but
+I cant promise anything.
+4. If you want to see detailed output you should run the terminal version of the app. It will tell you if/when uploads fail, which will make debugging much easier. If the app crashes it will provide a crashdump txt file, please include it if you want to report a crash.
 # Etc
 Feel free to steal this for anything. Maybe I'll make it less scuffed in the future.<br>
 Last tested with my python 3.7 setup on Arch Linux and the state of dps.report/wingman APIs as of 27.10.2023.
 # Licenses of used packages
-requests: Apache 2.0
-psyimplegui: GNU LESSER GENERAL PUBLIC LICENSE
-pyperclip: See licenses.txt
+requests: Apache 2.0 <br>
+psyimplegui: GNU LESSER GENERAL PUBLIC LICENSE<br>
+pyperclip: See licenses.txt<br>
+watchdog: Apache 2.0
