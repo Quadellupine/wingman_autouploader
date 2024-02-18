@@ -38,8 +38,7 @@ def batch_upload_window():
     layout = [[sg.Text("Choose a folder for batch upload", key="second")],
               [[sg.FolderBrowse(key="folder"), sg.Text("")]],
               [sg.Button("Upload!", key="upload"),
-               sg.ProgressBar(max_value=100, orientation='h', size=(20, 20), key='progress')],
-              [[sg.Button("Close")]]]
+               sg.ProgressBar(max_value=100, orientation='h', size=(20, 20), key='progress')]]
     global counter
     window = sg.Window("Batch Upload", layout, modal=False,enable_close_attempted_event=True)
     while True:
@@ -50,8 +49,7 @@ def batch_upload_window():
             break      
         if event == "refresh":
             try:
-                progress = math.ceil(counter/len(logs)*100)
-                
+                progress = math.ceil(counter/len(logs)*100)                    
             except:
                 progress = 0
             window["progress"].update(progress)

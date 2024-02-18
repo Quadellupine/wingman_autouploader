@@ -22,6 +22,11 @@ pip
 3. Please report any issues you have on this repo, and suggestions too. I will try to work on them but
 I cant promise anything.
 4. If you want to see detailed output you should run the terminal version of the app. It will tell you if/when uploads fail, which will make debugging much easier. If the app crashes it will provide a crashdump txt file, please include it if you want to report a crash.
+# Batch Upload
+Clicking the button opens a second window. While it is open progress on the main window will be held back
+until it is closed. This is due to my incompetence and may be fixable.
+In the new window, you can choose a folder. When you click upload the program will recursively go down the
+folder you have given it (So including subfolders) and upload anything it finds.
 # Etc
 Feel free to steal this for anything. Maybe I'll make it less scuffed in the future.<br>
 Last tested with my python 3.7 setup on Arch Linux and the state of dps.report/wingman APIs as of 27.10.2023.
