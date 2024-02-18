@@ -94,7 +94,7 @@ def dps_report_batch(file_to_upload, domain):
     try:
         response = requests.post(url, files=files, data=data, timeout=30, headers=headers)
         # Make the response is actually there?? idk at this point
-        time.sleep(1)
+        time.sleep(5)
         data = response.json()
     except Exception as e:
         print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
