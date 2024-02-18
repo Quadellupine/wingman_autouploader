@@ -9,10 +9,9 @@ import PySimpleGUI as sg
 import pyperclip
 import configparser
 import queue
-# To reduce clutter I moved this window to its own file...
 from batchupload import batch_upload_window
-
 # Queue for multithreading
+
 result_queue = queue.Queue()
 # Load configuration
 config = configparser.ConfigParser()

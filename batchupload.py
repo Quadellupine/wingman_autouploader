@@ -7,26 +7,17 @@ from datetime import datetime
 import threading
 import configparser
 config = configparser.ConfigParser()
-config_file_path = "config.ini"
-config.read(config_file_path)
-sg.theme(config["Settings"]["theme"])
-# Layout
-layout = [[sg.Text("Choose a folder for batch upload", key="second")],
-              [[sg.FolderBrowse(key="folder"), sg.Text("")]],
-              [sg.Button("Upload!", key="upload"),
-               sg.ProgressBar(max_value=100, orientation='h', size=(20, 20), key='progress')]]
-window = sg.Window("Batch Upload", layout, modal=False)
+
 
 # Create a Semaphore to control the number of threads
 counter = 0
 counter_lock = threading.Lock()
 max_threads = 3
-thread_semaphore = threading.Semaphore(max_threads)
 
 def execute_dps_report_batch_with_semaphore(log, param):
+    thread_semaphore = threading.Semaphore(max_threads)
     with thread_semaphore:
-        dps_report_batch(log, param)
-        window.write_event_value("refresh", counter)     
+        dps_report_batch(log, param)    
 
 def get_current_time():
     ts = time.time()
@@ -46,11 +37,21 @@ def upload_wingman_batch(dps_link):
     print(get_current_time(),"Batchupload:", data['note'])
         
 def batch_upload_window():
+    layout = [[sg.Text("Choose a folder for batch upload", key="second")],
+              [[sg.FolderBrowse(key="folder"), sg.Text("")]],
+              [sg.Button("Upload!", key="upload"),
+               sg.ProgressBar(max_value=100, orientation='h', size=(20, 20), key='progress')]]
     global counter
+    window = sg.Window("Batch Upload", layout)
     while True:
-        event, values = window.read(timeout=100)        
+        event, values = window.read(timeout=100)
+        window.write_event_value("refresh", counter)       
         if event == "refresh":
-            progress = math.ceil(counter/len(logs)*100)
+            try:
+                progress = math.ceil(counter/len(logs)*100)
+                
+            except:
+                progress = 0
             window["progress"].update(progress)
         if event == "Exit" or event == sg.WIN_CLOSED:
             break
@@ -72,7 +73,6 @@ def batch_upload_window():
             print(get_current_time(),"Batchupload: found", len(logs), "logs")
             for log in logs:
                 threading.Thread(target=execute_dps_report_batch_with_semaphore, args=(log, 0)).start()  
-        
     window.close()
     
     
