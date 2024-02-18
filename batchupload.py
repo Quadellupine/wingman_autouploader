@@ -5,17 +5,15 @@ from os import walk, path
 import time
 from datetime import datetime
 import threading
-import configparser
-config = configparser.ConfigParser()
 
 
 # Create a Semaphore to control the number of threads
 counter = 0
 counter_lock = threading.Lock()
 max_threads = 3
+thread_semaphore = threading.Semaphore(max_threads)
 
 def execute_dps_report_batch_with_semaphore(log, param):
-    thread_semaphore = threading.Semaphore(max_threads)
     with thread_semaphore:
         dps_report_batch(log, param)    
 
@@ -40,12 +38,16 @@ def batch_upload_window():
     layout = [[sg.Text("Choose a folder for batch upload", key="second")],
               [[sg.FolderBrowse(key="folder"), sg.Text("")]],
               [sg.Button("Upload!", key="upload"),
-               sg.ProgressBar(max_value=100, orientation='h', size=(20, 20), key='progress')]]
+               sg.ProgressBar(max_value=100, orientation='h', size=(20, 20), key='progress')],
+              [[sg.Button("Close")]]]
     global counter
-    window = sg.Window("Batch Upload", layout)
+    window = sg.Window("Batch Upload", layout, modal=False,enable_close_attempted_event=True)
     while True:
         event, values = window.read(timeout=100)
-        window.write_event_value("refresh", counter)       
+        window.write_event_value("refresh", counter) 
+        if event == "Close" or event == sg.WINDOW_CLOSE_ATTEMPTED_EVENT:
+            print("Closing Dialog...")
+            break      
         if event == "refresh":
             try:
                 progress = math.ceil(counter/len(logs)*100)
@@ -53,8 +55,6 @@ def batch_upload_window():
             except:
                 progress = 0
             window["progress"].update(progress)
-        if event == "Exit" or event == sg.WIN_CLOSED:
-            break
         if event == "folder":
             target = values["folder"]
         if event == "upload":     
