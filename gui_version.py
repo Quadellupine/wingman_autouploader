@@ -11,6 +11,7 @@ import configparser
 import queue
 from batchupload import batch_upload_window
 # Queue for multithreading
+
 result_queue = queue.Queue()
 # Load configuration
 config = configparser.ConfigParser()
