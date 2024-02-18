@@ -9,9 +9,10 @@ import PySimpleGUI as sg
 import pyperclip
 import configparser
 import queue
+# To reduce clutter I moved this window to its own file...
 from batchupload import batch_upload_window
-# Queue for multithreading
 
+# Queue for multithreading
 result_queue = queue.Queue()
 # Load configuration
 config = configparser.ConfigParser()
@@ -217,7 +218,7 @@ try:
             break
         # Open additional Window to start a batch upload, handled in additional python file
         elif event == "batch":
-            sg.Window(batch_upload_window())
+            batch_upload_window()
             
         # Copying last visible link to clipboard
         elif event == "Copy last to Clipboard":

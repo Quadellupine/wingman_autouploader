@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 import requests
-import os
-from os import walk
+import math
+from os import walk, path
 import time
 from datetime import datetime
 import threading
@@ -14,7 +14,7 @@ sg.theme(config["Settings"]["theme"])
 layout = [[sg.Text("Choose a folder for batch upload", key="second")],
               [[sg.FolderBrowse(key="folder"), sg.Text("")]],
               [sg.Button("Upload!", key="upload"),
-               sg.ProgressBar(max_value=5, orientation='h', size=(20, 20), key='progress')]]
+               sg.ProgressBar(max_value=100, orientation='h', size=(20, 20), key='progress')]]
 window = sg.Window("Batch Upload", layout, modal=False)
 
 # Create a Semaphore to control the number of threads
@@ -48,28 +48,27 @@ def upload_wingman_batch(dps_link):
 def batch_upload_window():
     global counter
     while True:
-        event, values = window.read(timeout=100)   
-        window.refresh()
+        event, values = window.read(timeout=100)        
         if event == "refresh":
-            window["progress"].update(counter)
+            progress = math.ceil(counter/len(logs)*100)
+            window["progress"].update(progress)
         if event == "Exit" or event == sg.WIN_CLOSED:
             break
         if event == "folder":
-            path = values["folder"]
+            target = values["folder"]
         if event == "upload":     
             # Reset counter, if user uploads twice in one session
             counter = 0
-            window["progress"].update(0)
-            window.refresh() 
-            path = values["folder"]
-            filenames = next(walk(path), (None, None, []))[2]
+            target = values["folder"]
+            filenames = [path.join(root, filename) for root, _, files in walk(target) for filename in files]
+            # Throw out every file that is not an evtc file
             logs = []
-            # Throw out every log that is not an evtc file
             for file in filenames:
                 if file[-4:] == "evtc":
-                    logs.append(path+"/"+file)
-            # Set progress bar max to the amount of logs found
-            window['progress'].update(max=len(logs))
+                    logs.append(file)
+            # Set progress bar max to the amount of logs found, reset bar to 0
+            window["progress"].update(0)
+            window.refresh()   
             print(get_current_time(),"Batchupload: found", len(logs), "logs")
             for log in logs:
                 threading.Thread(target=execute_dps_report_batch_with_semaphore, args=(log, 0)).start()  
