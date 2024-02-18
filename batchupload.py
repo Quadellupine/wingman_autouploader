@@ -38,7 +38,8 @@ def batch_upload_window():
     layout = [[sg.Text("Choose a folder for batch upload", key="second")],
               [[sg.FolderBrowse(key="folder"), sg.Text("")]],
               [sg.Button("Upload!", key="upload"),
-               sg.ProgressBar(max_value=100, orientation='h', size=(20, 20), key='progress')]]
+               sg.ProgressBar(max_value=100, orientation='h', size=(20, 20), key='progress')],
+              [sg.Text("", key="status")]]
     global counter
     window = sg.Window("Batch Upload", layout, modal=False,enable_close_attempted_event=True)
     while True:
@@ -49,7 +50,9 @@ def batch_upload_window():
             break      
         if event == "refresh":
             try:
-                progress = math.ceil(counter/len(logs)*100)                    
+                progress = math.ceil(counter/len(logs)*100)
+                if counter == len(logs):
+                    window["status"].update("Done!")                   
             except:
                 progress = 0
             window["progress"].update(progress)
@@ -59,6 +62,7 @@ def batch_upload_window():
             # Reset counter, if user uploads twice in one session
             counter = 0
             target = values["folder"]
+            window["status"].update("")  
             filenames = [path.join(root, filename) for root, _, files in walk(target) for filename in files]
             # Throw out every file that is not an evtc file
             logs = []
