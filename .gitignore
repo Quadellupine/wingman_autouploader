@@ -14,3 +14,4 @@ test.py
 *.json
 *.csv
 linklist.txt
+testlogs/

@@ -9,6 +9,7 @@ import PySimpleGUI as sg
 import pyperclip
 import configparser
 import queue
+from batchupload import batch_upload_window
 # Queue for multithreading
 result_queue = queue.Queue()
 # Load configuration
@@ -64,6 +65,7 @@ def get_current_time():
     ts = date_time.strftime("%H:%M:%S")
     ts = "["+ts+"]:"
     return ts
+
 
 def get_json_duration(dps_link):
     try:
@@ -139,8 +141,8 @@ def reprint():
         if link[0] or showwipes:
             if not (is_shitlog(link[1]) and filter_shitlogs):
                 window["text"].print("[",link[2],"]",link[1])
-# Begin Main
-# ----------------  Create Form  ----------------
+# Begin the actual PROGRAM
+# ----------------  Create main Layout  ----------------
 textbox = [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)]
 button_row_one= [sg.Button("Reset", size=(26, 2)),
      sg.Button("Copy last to Clipboard", size=(26, 2))]
@@ -151,7 +153,10 @@ checkbox_one = [sg.Checkbox("Show wipes  ", key='wipes', default=showwipes),
       sg.Checkbox("Upload wipes to Wingman", key ='bool_wingman', default=pushwipes)]
 checkbox_two = [sg.Checkbox("Filter shitlogs", key ='shitlog_checkbox', default=filter_shitlogs),
         sg.Checkbox("Disable Wingman Upload", key='global_wingman', default=no_wingman)]
-layout = [textbox, button_row_one, button_row_two, checkbox_one, checkbox_two]
+batch_upload = [sg.Button("Batch Upload", key="batch", size=(13,1))]
+
+layout = [textbox, button_row_one, button_row_two, checkbox_one, checkbox_two, batch_upload]
+# Set icon on windows, still need to figure out how to detect Linux binaries
 if getattr(sys, 'frozen', False):
     base_dir = sys._MEIPASS
 else:
@@ -198,25 +203,29 @@ try:
                 link_collection.append((success_value, dps_link, duration))
                 if dps_link == "skip":
                     continue
-                # --------- Append to text content --------
                 # Only printing successful logs to GUI or if the user wants wipes
 
                 if success_value or showwipes and (not bool_shitlog):
                     window["text"].print("[",duration,"]",dps_link)
         except queue.Empty:
             pass
-        # -- Check for events --B
+        #Check for events, extremely UGLY but what can you do
         if event == sg.WIN_CLOSED or event == 'Exit':
             with open(config_file_path, 'w') as configfile:
                 config.write(configfile)
             break
+        # Open additional Window to start a batch upload, handled in additional python file
+        elif event == "batch":
+            batch_upload_window()
             
+        # Copying last visible link to clipboard
         elif event == "Copy last to Clipboard":
             last = window["text"].get()
             last = last.split("\n")[-1]
             if last != "":
                 last = last.split("]")[1]
             pyperclip.copy(last)
+        # Copy all visible links to clipboard
         elif event == "Copy all to Clipboard":
             s = ""
             for entry in link_collection:
@@ -224,16 +233,18 @@ try:
                     if not (is_shitlog(entry[1]) and filter_shitlogs):
                         s = s+(entry[1])+"\n"
             pyperclip.copy(s)
+        # Only copy kills, even if wipes are visible
         elif event == "Copy only Kills":
             s = ""
             for entry in link_collection:
                 if entry[0] == True and not (is_shitlog(entry[1]) and filter_shitlogs):
                     s = s+(entry[1])+"\n"
             pyperclip.copy(s)
+        # Reset memory of links
         elif event == "Reset":
             window["text"].update("")
             link_collection = []  
-        # Show wipes                  
+        # Upload wipes              
         elif values['wipes'] == True:
             config.set('Settings', 'ShowWipes', 'True')
             if values["wipes"] != showwipes:
@@ -251,13 +262,14 @@ try:
         elif values['bool_wingman'] == False:
             config.set('Settings', 'pushwipes', 'False')
             pushwipes = False
+        # Disable wingmanupload entirely
         if values['global_wingman'] == True:
             config.set('Settings', 'no_wingman', 'True')
             no_wingman = True
         elif values['global_wingman'] == False:
             config.set('Settings', 'no_wingman', 'False')
             no_wingman = False
-        # Shitlogs
+        # Filter Shitlogs
         if values['shitlog_checkbox'] == True:
             config.set('Settings', 'filter_shitlogs', 'True')
             if values['shitlog_checkbox'] != filter_shitlogs:
@@ -276,10 +288,8 @@ except Exception as e:
     print("Oh no!")
     exception = str(e)
     now = datetime.now()
-    filename = now.strftime("%d/%m/%Y_%H:%M:%S")
+    filename = now.strftime("%d_%m_%Y_%H:%M:%S")
     filename = filename+"_crash.txt"
-    f = open(filename, "x")
+    f = open(filename, "w+")
     f.write(exception)
     f.close()
-    
-    
