@@ -43,6 +43,7 @@ def batch_upload_window():
     global counter
     window = sg.Window("Batch Upload", layout, modal=False,enable_close_attempted_event=True)
     while True:
+        time.sleep(0.1)
         event, values = window.read(timeout=100)
         window.write_event_value("refresh", counter) 
         if event == "Close" or event == sg.WINDOW_CLOSE_ATTEMPTED_EVENT:
