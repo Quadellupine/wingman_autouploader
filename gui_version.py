@@ -217,7 +217,7 @@ try:
             break
         # Open additional Window to start a batch upload, handled in additional python file
         elif event == "batch":
-            batch_upload_window()
+            sg.Window(batch_upload_window())
             
         # Copying last visible link to clipboard
         elif event == "Copy last to Clipboard":

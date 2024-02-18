@@ -12,10 +12,10 @@ config.read(config_file_path)
 sg.theme(config["Settings"]["theme"])
 # Layout
 layout = [[sg.Text("Choose a folder for batch upload", key="second")],
-              [[sg.FolderBrowse(key="folder"), sg.Text("Progress")]],
+              [[sg.FolderBrowse(key="folder"), sg.Text("")]],
               [sg.Button("Upload!", key="upload"),
                sg.ProgressBar(max_value=5, orientation='h', size=(20, 20), key='progress')]]
-window = sg.Window("Second Window", layout, modal=True)
+window = sg.Window("Batch Upload", layout, modal=False)
 
 # Create a Semaphore to control the number of threads
 counter = 0
@@ -48,7 +48,7 @@ def upload_wingman_batch(dps_link):
 def batch_upload_window():
     global counter
     while True:
-        event, values = window.read()   
+        event, values = window.read(timeout=100)   
         window.refresh()
         if event == "refresh":
             window["progress"].update(counter)
@@ -58,7 +58,9 @@ def batch_upload_window():
             path = values["folder"]
         if event == "upload":     
             # Reset counter, if user uploads twice in one session
-            counter = 0       
+            counter = 0
+            window["progress"].update(0)
+            window.refresh() 
             path = values["folder"]
             filenames = next(walk(path), (None, None, []))[2]
             logs = []
@@ -68,7 +70,7 @@ def batch_upload_window():
                     logs.append(path+"/"+file)
             # Set progress bar max to the amount of logs found
             window['progress'].update(max=len(logs))
-            print("found", len(logs), "logs")
+            print(get_current_time(),"Batchupload: found", len(logs), "logs")
             for log in logs:
                 threading.Thread(target=execute_dps_report_batch_with_semaphore, args=(log, 0)).start()  
         
