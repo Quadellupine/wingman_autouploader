@@ -100,6 +100,10 @@ def dps_report_batch(file_to_upload, domain):
         print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
         time.sleep(2**domain) #exponential backoff
         return dps_report_batch(file_to_upload, domain+1)
+    if not data['permalink']:
+        print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
+        time.sleep(2**domain) #exponential backoff
+        return dps_report_batch(file_to_upload, domain+1)
     print(get_current_time(),"Batchupload:", data['permalink'])
     upload_wingman_batch(data['permalink'])
     global counter
