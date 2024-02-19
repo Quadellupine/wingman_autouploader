@@ -10,7 +10,7 @@ import threading
 # Create a Semaphore to control the number of threads
 counter = 0
 counter_lock = threading.Lock()
-max_threads = 3
+max_threads = 10
 thread_semaphore = threading.Semaphore(max_threads)
 
 def execute_dps_report_batch_with_semaphore(log, param):
@@ -100,7 +100,10 @@ def dps_report_batch(file_to_upload, domain):
         print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
         time.sleep(2**domain) #exponential backoff
         return dps_report_batch(file_to_upload, domain+1)
-    if not data['permalink']:
+    # Frankly I dont know whats going on either, sometimes the response is just bad. I cant find a system so I am just trying to catch it instead...
+    try:
+         test = data['permalink']
+    except Exception as e:
         print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
         time.sleep(2**domain) #exponential backoff
         return dps_report_batch(file_to_upload, domain+1)

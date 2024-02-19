@@ -114,6 +114,12 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
         time.sleep(2**domain) #exponential backoff
         return dpsreport_fixed(file_to_upload, domain+1, result_queue)
     success_value = data.get('encounter', {}).get('success')
+    try:
+         test = data['permalink']
+    except Exception as e:
+        print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
+        time.sleep(2**domain) #exponential backoff
+        return dps_report_batch(file_to_upload, domain+1)
     print(get_current_time(),"permalink:", data['permalink'])
     duration = get_json_duration(dps_link)
     print(get_current_time(),"Success:",success_value, "| Duration:", duration)
