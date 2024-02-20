@@ -224,7 +224,7 @@ try:
             break
         # Open additional Window to start a batch upload, handled in additional python file
         elif event == "batch":
-            batch_upload_window()
+            batch_upload_window(path)
             
         # Copying last visible link to clipboard
         elif event == "Copy last to Clipboard":
