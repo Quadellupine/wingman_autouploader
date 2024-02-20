@@ -8,14 +8,16 @@ import threading
 
 
 # Create a Semaphore to control the number of threads
-counter = 0
+exit_event = threading.Event()
 counter_lock = threading.Lock()
-max_threads = 10
+counter = 0
+max_threads = 3
 thread_semaphore = threading.Semaphore(max_threads)
 
 def execute_dps_report_batch_with_semaphore(log, param):
     with thread_semaphore:
-        dps_report_batch(log, param)    
+        if not exit_event.is_set():
+            dps_report_batch(log, param)    
 
 def get_current_time():
     ts = time.time()
@@ -39,7 +41,8 @@ def batch_upload_window():
               [[sg.FolderBrowse(key="folder"), sg.Text("")]],
               [sg.Button("Upload!", key="upload"),
                sg.ProgressBar(max_value=100, orientation='h', size=(20, 20), key='progress')],
-              [sg.Text("", key="status")]]
+              [sg.Text("Waiting", key="status")],
+              [sg.Button("Cancel", key="Exit")]]
     global counter
     window = sg.Window("Batch Upload", layout, modal=False,enable_close_attempted_event=True)
     while True:
@@ -59,17 +62,23 @@ def batch_upload_window():
             window["progress"].update(progress)
         if event == "folder":
             target = values["folder"]
+        if event == "Exit":
+            print("Exit caught")
+            window["status"].update("Upload stopping...")  
+            exit_event.set()
         if event == "upload":     
-            # Reset counter, if user uploads twice in one session
+            # Reset counter, if user uploads twice in one session, unblock threads
             counter = 0
+            exit_event.clear()
             target = values["folder"]
-            window["status"].update("")  
+            window["status"].update("Uploading...")  
             filenames = [path.join(root, filename) for root, _, files in walk(target) for filename in files]
             # Throw out every file that is not an evtc file
             logs = []
             for file in filenames:
                 if file[-4:] == "evtc":
                     logs.append(file)
+                    write_log(file)
             # Set progress bar max to the amount of logs found, reset bar to 0
             window["progress"].update(0)
             window.refresh()   
@@ -77,7 +86,9 @@ def batch_upload_window():
             for log in logs:
                 threading.Thread(target=execute_dps_report_batch_with_semaphore, args=(log, 0)).start()  
     window.close()
-    
+def write_log(text):
+    with open(".seen.txt", "a") as f:
+        f.write(text+"\n")
     
 def dps_report_batch(file_to_upload, domain):
     if domain >= 15:
@@ -96,13 +107,6 @@ def dps_report_batch(file_to_upload, domain):
         # Make the response is actually there?? idk at this point
         time.sleep(5)
         data = response.json()
-    except Exception as e:
-        print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
-        time.sleep(2**domain) #exponential backoff
-        return dps_report_batch(file_to_upload, domain+1)
-    # Frankly I dont know whats going on either, sometimes the response is just bad. I cant find a system so I am just trying to catch it instead...
-    try:
-         test = data['permalink']
     except Exception as e:
         print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
         time.sleep(2**domain) #exponential backoff
