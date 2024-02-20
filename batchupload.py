@@ -5,7 +5,7 @@ from os import walk, path
 import time
 from datetime import datetime
 import threading
-
+import csv
 
 # Create a Semaphore to control the number of threads
 exit_event = threading.Event()
@@ -18,6 +18,12 @@ def execute_dps_report_batch_with_semaphore(log, param):
     with thread_semaphore:
         if not exit_event.is_set():
             dps_report_batch(log, param)    
+
+def intersection(logs, seen):
+    set_logs = set(logs)
+    set_seen = set(seen)
+    result = list(set_logs - set_seen)
+    return result
 
 def get_current_time():
     ts = time.time()
@@ -78,18 +84,35 @@ def batch_upload_window():
             for file in filenames:
                 if file[-4:] == "evtc":
                     logs.append(file)
-                    write_log(file)
+            seen = return_seen()
+            logs = intersection(logs, seen)
             # Set progress bar max to the amount of logs found, reset bar to 0
             window["progress"].update(0)
             window.refresh()   
             print(get_current_time(),"Batchupload: found", len(logs), "logs")
             for log in logs:
+                write_log(log)
                 threading.Thread(target=execute_dps_report_batch_with_semaphore, args=(log, 0)).start()  
     window.close()
 def write_log(text):
-    with open(".seen.txt", "a") as f:
-        f.write(text+"\n")
-    
+    try:
+        with open(".seen.csv", "a") as f:
+            f.write(text+"\n")
+    except:
+        f = open(".seen.csv", "x")
+        f.close
+        write_log(text)
+def return_seen():
+    seen = []
+    try:
+        with open('.seen.csv', newline='') as csvfile:
+            seen = list(csv.reader(csvfile))
+    except:
+        f = open(".seen.csv", "x")
+        f.close
+    seen = [element for sublist in seen for element in sublist]
+    return seen
+        
 def dps_report_batch(file_to_upload, domain):
     if domain >= 15:
         return("Failed")
@@ -111,7 +134,13 @@ def dps_report_batch(file_to_upload, domain):
         print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
         time.sleep(2**domain) #exponential backoff
         return dps_report_batch(file_to_upload, domain+1)
-    print(get_current_time(),"Batchupload:", data['permalink'])
+    # WHY does this error?? Who knows
+    try: 
+        print(get_current_time(),"Batchupload:", data['permalink'])
+    except Exception as e:
+        print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
+        time.sleep(2**domain) #exponential backoff
+        return dps_report_batch(file_to_upload, domain+1)
     upload_wingman_batch(data['permalink'])
     global counter
     with counter_lock:

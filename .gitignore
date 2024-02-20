@@ -15,4 +15,4 @@ test.py
 *.csv
 linklist.txt
 testlogs/
-.seen.txt
+.seen.csv
