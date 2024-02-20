@@ -43,12 +43,11 @@ def upload_wingman_batch(dps_link):
     print(get_current_time(),"Batchupload:", data['note'])
         
 def batch_upload_window():
-    layout = [[sg.Text("Choose a folder for batch upload", key="second")],
-              [[sg.FolderBrowse(key="folder"), sg.Text("")]],
-              [sg.Button("Upload!", key="upload"),
+    layout = [[sg.Text("Choose a folder for batch upload", key="second",font=('Helvetica', 16))],
+              [[sg.FolderBrowse(key="folder",size=(10,1)), sg.Text(""),]],
+              [sg.Button("Upload!", key="upload",size=(10,1)),
                sg.ProgressBar(max_value=100, orientation='h', size=(20, 20), key='progress')],
-              [sg.Text("Waiting", key="status")],
-              [sg.Button("Cancel", key="Exit")]]
+              [sg.Button("Cancel", key="Exit",size=(10,1)),sg.Text("Status:"),sg.Text("Waiting for Input", key="status")]]
     global counter
     window = sg.Window("Batch Upload", layout, modal=False,enable_close_attempted_event=True)
     while True:
