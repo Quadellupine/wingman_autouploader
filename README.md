@@ -26,7 +26,9 @@ I cant promise anything.
 Clicking the button opens a second window. While it is open progress on the main window will be held back
 until it is closed. This is due to my incompetence and may be fixable.
 In the new window, you can choose a folder. When you click upload the program will recursively go down the
-folder you have given it (So including subfolders) and upload anything it finds.
+folder you have given it (So including subfolders) and upload anything it finds.<br>
+After your first time using this feature, a file called .seen.csv will be created. It will keep track of all
+successfully uploaded files to prevent them from being reuploaded again in the future.
 # Etc
 Feel free to steal this for anything. Maybe I'll make it less scuffed in the future.<br>
 Last tested with my python 3.7 setup on Arch Linux and the state of dps.report/wingman APIs as of 27.10.2023.

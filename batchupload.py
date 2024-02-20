@@ -76,7 +76,6 @@ def batch_upload_window():
             counter = 0
             exit_event.clear()
             target = values["folder"]
-            window["status"].update("Uploading...")  
             filenames = [path.join(root, filename) for root, _, files in walk(target) for filename in files]
             # Throw out every file that is not an evtc file
             logs = []
@@ -88,9 +87,14 @@ def batch_upload_window():
             # Set progress bar max to the amount of logs found, reset bar to 0
             window["progress"].update(0)
             window.refresh()   
-            print(get_current_time(),"Batchupload: found", len(logs), "logs")
+            print(get_current_time(),"Batchupload: found", len(logs), "new logs")
+            window["status"].update("Uploading "+str(len(logs))+" logs")
+            window.refresh()
+            if len(logs) == 0:
+                time.sleep(3)
+                window["status"].update("Done!")
+                window.refresh()
             for log in logs:
-                write_log(log)
                 threading.Thread(target=execute_dps_report_batch_with_semaphore, args=(log, 0)).start()  
     window.close()
 def write_log(text):
@@ -141,6 +145,7 @@ def dps_report_batch(file_to_upload, domain):
         time.sleep(2**domain) #exponential backoff
         return dps_report_batch(file_to_upload, domain+1)
     upload_wingman_batch(data['permalink'])
+    write_log(file_to_upload)
     global counter
     with counter_lock:
         counter += 1
