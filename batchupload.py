@@ -51,7 +51,6 @@ def batch_upload_window():
               [sg.Button("Cancel", key="Exit",size=(10,1)),sg.Text("Status:"),sg.Text("Waiting for Input", key="status")]]
     global counter
     global global_length
-    print("counter:",counter," len(logs):",global_length)
     window = sg.Window("Batch Upload", layout, modal=False,enable_close_attempted_event=True)
     while True:
         time.sleep(0.1)
