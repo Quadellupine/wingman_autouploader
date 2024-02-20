@@ -57,7 +57,7 @@ def batch_upload_window():
         event, values = window.read(timeout=100)
         window.write_event_value("refresh", counter) 
         if event == "Close" or event == sg.WINDOW_CLOSE_ATTEMPTED_EVENT:
-            print("Closing Dialog...")
+            print(get_current_time(),"Closing Dialog...")
             break      
         if event == "refresh":
             try:
