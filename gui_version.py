@@ -10,6 +10,7 @@ import pyperclip
 import configparser
 import queue
 from batchupload import batch_upload_window
+from batchupload import write_log
 # Queue for multithreading
 result_queue = queue.Queue()
 # Load configuration
@@ -118,11 +119,12 @@ def dpsreport_fixed(file_to_upload, domain, result_queue):
     except Exception as e:
         print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
         time.sleep(2**domain) #exponential backoff
-        return dps_report_batch(file_to_upload, domain+1)
+        return dpsreport_fixed(file_to_upload, domain+1)
     print(get_current_time(),"permalink:", data['permalink'])
     duration = get_json_duration(dps_link)
     print(get_current_time(),"Success:",success_value, "| Duration:", duration)
     result_queue.put((success_value, dps_link, duration))
+    write_log(file_to_upload)
     return success_value, dps_link, duration
 
 def is_shitlog(dps_link):

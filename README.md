@@ -29,6 +29,8 @@ In the new window, you can choose a folder. When you click upload the program wi
 folder you have given it (So including subfolders) and upload anything it finds.<br>
 After your first time using this feature, a file called .seen.csv will be created. It will keep track of all
 successfully uploaded files to prevent them from being reuploaded again in the future.
+**ATTENTION**
+If you CLOSE to batchupload window the uploading will continue in the background. Only clicking the CANCEL button or fully terminating the Application will stop it.
 # Etc
 Feel free to steal this for anything. Maybe I'll make it less scuffed in the future.<br>
 Last tested with my python 3.7 setup on Arch Linux and the state of dps.report/wingman APIs as of 27.10.2023.

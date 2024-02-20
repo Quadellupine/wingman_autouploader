@@ -11,6 +11,7 @@ import csv
 exit_event = threading.Event()
 counter_lock = threading.Lock()
 counter = 0
+global_length = 1
 max_threads = 3
 thread_semaphore = threading.Semaphore(max_threads)
 
@@ -49,6 +50,8 @@ def batch_upload_window():
                sg.ProgressBar(max_value=100, orientation='h', size=(20, 20), key='progress')],
               [sg.Button("Cancel", key="Exit",size=(10,1)),sg.Text("Status:"),sg.Text("Waiting for Input", key="status")]]
     global counter
+    global global_length
+    print("counter:",counter," len(logs):",global_length)
     window = sg.Window("Batch Upload", layout, modal=False,enable_close_attempted_event=True)
     while True:
         time.sleep(0.1)
@@ -69,6 +72,10 @@ def batch_upload_window():
             target = values["folder"]
         if event == "Exit":
             print("Exit caught")
+            try:
+                global_length = len(logs)
+            except:
+                global_length = 1
             window["status"].update("Upload stopping...")  
             exit_event.set()
         if event == "upload":     
