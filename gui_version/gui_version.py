@@ -15,6 +15,8 @@ from utils import write_log, get_current_time, start_mono_app, get_info_from_jso
 import wget
 import zipfile
 
+# Find latest EI release
+EIQueryURL = "https://api.github.com/repos/baaron4/GW2-Elite-Insights-Parser/releases/latest"
 # Queue for multithreading
 result_queue = queue.Queue()
 # Load configuration
@@ -113,7 +115,10 @@ def reprint():
 # Check for EI
 if not os.path.isdir("EI"):
     print(get_current_time(),"EI is missing, downloading it")
-    wget.download("https://github.com/baaron4/GW2-Elite-Insights-Parser/releases/download/v2.64.0.0/GW2EI.zip", "EI.zip")
+    query = requests.get(EIQueryURL).json()
+    recentEI = query["assets"][0]
+    assetURL = recentEI["browser_download_url"]
+    wget.download(assetURL, "EI.zip")
     with zipfile.ZipFile("EI.zip", 'r') as zip_ref:
         zip_ref.extractall("EI")
     os.remove("EI.zip")
