@@ -3,6 +3,7 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 import sys
+import requests
 import os
 import subprocess
 import PySimpleGUI as sg
@@ -59,7 +60,7 @@ def on_moved(event):
             historicalSize = os.path.getsize(event.dest_path)
             time.sleep(5)
         print(get_current_time(), event.dest_path.split(path)[1],"log creation has now finished")
-        window.start_thread(lambda: upload(event.dest_path,result_queue,no_wingman), ('-THREAD-', '-THEAD ENDED-'))
+        window.start_thread(lambda: upload(event.dest_path,no_wingman), ('-THREAD-', '-THEAD ENDED-'))
 
 # Utility functions
 def get_current_time():
@@ -87,8 +88,10 @@ def get_info_from_json(dps_link):
         success = content.get("success")
         parts = duration.split()
         duration = parts[0]+parts[1]
-    except:
+    except Exception as e:
+        print(e)
         duration = "0"
+        success = False
     return duration, success
       
 def upload(log,wingman):
@@ -97,19 +100,19 @@ def upload(log,wingman):
         config = ["-c", "wingman.conf"]
     else:
         config = ["-c", "no_wingman.conf"]
-    args = linux + config + log
-    print("[DEBUG] Arglist:", args)
+    args = linux + config + [log]
     start_mono_app("EI/GuildWars2EliteInsights.exe",args)
-    ei_log = log[0].replace(".zevtc", ".log")
+    ei_log = log.replace(".zevtc", ".log")
     with open(ei_log) as f:
         lines = f.readlines()
     os.remove(ei_log) 
     for  line in lines:
         if "dps.report" in line:
             dps_link=line.split(" ")[1]
-            print(dps_link)
+            dps_link = dps_link.replace("\n","")
+            print(get_current_time(), "permalink:",dps_link)
     duration, success_value = get_info_from_json(dps_link)
-    result_queue.put(success_value, dps_link, duration)
+    result_queue.put((success_value, dps_link, duration))
     write_log(dps_link)
     
 
@@ -186,9 +189,9 @@ start_time = time.time()
 # Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
 link_collection = []
-result_queue.put((True, "_trio", 0))
-result_queue.put((False, "_trio_wipe", 0))
-
+#result_queue.put((True, "_trio", 0))
+#result_queue.put((False, "_trio_wipe", 0))
+#upload("/mnt/Storage/Logs/arcdps.cbtlogs/Standard Kitty Golem/20240221-182436.zevtc",False)
 try:
     while True:
         time.sleep(0.05)
