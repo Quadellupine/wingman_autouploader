@@ -4,7 +4,7 @@ from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 import sys
 import os
-import requests
+import subprocess
 import PySimpleGUI as sg
 import pyperclip
 import configparser
@@ -58,74 +58,34 @@ def on_moved(event):
             historicalSize = os.path.getsize(event.dest_path)
             time.sleep(5)
         print(get_current_time(), event.dest_path.split(path)[1],"log creation has now finished")
-        window.start_thread(lambda: dpsreport_fixed(event.dest_path, 0, result_queue), ('-THREAD-', '-THEAD ENDED-'))
+        window.start_thread(lambda: upload(event.dest_path,result_queue), ('-THREAD-', '-THEAD ENDED-'))
 
+# Utility functions
 def get_current_time():
     ts = time.time()
     date_time = datetime.fromtimestamp(ts)
     ts = date_time.strftime("%H:%M:%S")
     ts = "["+ts+"]:"
     return ts
-
-
-def get_json_duration(dps_link):
+def start_mono_app(app_path, app_arguments):
     try:
-        url = "https://dps.report/getJson?permalink="+dps_link
-        response = requests.get(url)
-        content = response.json()
-        duration = content.get("duration")
-        parts = duration.split()
-        duration = parts[0]+parts[1]
-    except:
-        duration = "0"
-    return duration
-
-
-def upload_wingman(dps_link):
-    url = "https://gw2wingman.nevermindcreations.de/api/importLogQueued"
-    params = {"link": dps_link, 'antibot': 'true'}
-    response = requests.get(url, params=params)
-    data = response.json()
-    print(get_current_time(),data['note'])
-
-
-def dpsreport_fixed(file_to_upload, domain, result_queue):
-    if domain >= 15:
-        print(get_current_time(),"Reached 15 retries. Aborting.")
-        return(False, "skip")
-    if domain % 3 == 0:
-        url = "https://dps.report/uploadContent"
-    elif domain % 3 == 1:
-        url = "https://b.dps.report/uploadContent"
-    elif domain % 3 == 2:
-        url = "http://a.dps.report/uploadContent" 
-    files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
-    data = {'json': '1', 'generator': 'ei'}
-    headers = {'Accept': 'application/json'}
-    try:
-        response = requests.post(url, files=files, data=data, timeout=30, headers=headers)
-        # Make the response is actually there?? idk at this point
-        time.sleep(6)
-        data = response.json()
-        #print(data)
-        dps_link = data['permalink']
-    except Exception as e:
-        print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
-        time.sleep(2**domain) #exponential backoff
-        return dpsreport_fixed(file_to_upload, domain+1, result_queue)
-    success_value = data.get('encounter', {}).get('success')
-    try:
-         test = data['permalink']
-    except Exception as e:
-        print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
-        time.sleep(2**domain) #exponential backoff
-        return dpsreport_fixed(file_to_upload, domain+1)
-    print(get_current_time(),"permalink:", data['permalink'])
-    duration = get_json_duration(dps_link)
-    print(get_current_time(),"Success:",success_value, "| Duration:", duration)
-    result_queue.put((success_value, dps_link, duration))
-    write_log(file_to_upload)
-    return success_value, dps_link, duration
+        # Use subprocess to start the Mono app with arguments
+        subprocess.run(['mono', app_path] + app_arguments, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error starting Mono app: {e}")
+    except FileNotFoundError:
+        print("Mono runtime not found. Make sure Mono is installed on your system.")
+        
+def upload(args):
+    print("Running EI")
+    log = args[0]
+    linux = ["-p"]
+    config = ["-c EI/Settings/sample.conf"]
+    args = linux + +config+ args
+    start_mono_app("/home/anni/Code/wingman_autouploader/EI/GuildWars2EliteInsights.exe",args)
+    write_log(log)
+    result_queue.put(success_value, dps_link, duration)
+    
 
 def is_shitlog(dps_link):
     shitlogs =[
@@ -141,6 +101,7 @@ def is_shitlog(dps_link):
         if substring in dps_link:
             return True
     return False
+
 # Wow binary tables actually being useful for once
 def reprint():
     print("reprinting...")
@@ -204,10 +165,6 @@ try:
             bool_shitlog = is_shitlog(dps_link)
             # Filter logs that nobody wants to see anyways...
             if (bool_shitlog and not filter_shitlogs) or (not bool_shitlog):
-                if (success_value == True or pushwipes == True) and no_wingman == False:
-                    upload_wingman(dps_link)
-                else:
-                    print(get_current_time(),"Not pushing to wingman")
                 link_collection.append((success_value, dps_link, duration))
                 if dps_link == "skip":
                     continue
