@@ -1,6 +1,7 @@
 import time 
 from datetime import datetime
 import subprocess
+import requests
 def write_log(text):
     try:
         with open(".seen.csv", "a") as f:

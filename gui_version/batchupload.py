@@ -7,6 +7,7 @@ from datetime import datetime
 import threading
 import csv
 from utils import write_log, get_current_time, start_mono_app, get_info_from_json
+import requests
 
 # Create a Semaphore to control the number of threads
 exit_event = threading.Event()
@@ -120,8 +121,8 @@ def upload(log):
             dps_link=line.split(" ")[1]
             print(get_current_time(),"Batchupload:",name,dps_link.replace("\n",""))
             write_log(log[0])
-            with counter_lock:
-                counter += 1
         if "Wingman: UploadProcessed" in line:
             print(get_current_time(),"Batchupload:",name,line.replace("\n",""))
+            with counter_lock:
+                counter += 1
             
