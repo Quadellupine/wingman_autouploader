@@ -9,12 +9,16 @@ I am trying my best, but I can't take responsibility for this app crashing or no
 1. Download the latest .exe from the "Release" page
 2. Stop your antivirus from blocking it
 3. It will create a config.ini file, put your log path into it
-# Linux
+# Linux (main branch)
 Currently I am not providing a binary for Linux. 
 1. Install python, then install the dpendencies ```pysimplegui, pyperclip, requests, watchdog``` using
 pip
 2. Run the script using ```python3 gui_version.py``` or ```python3  uploader.py```
 3. It will create a config.ini file. Edit it to include your logpath
+# Linux (mono/Local EI branch)
+This new branch uses a local copy of EI to parse the logs locally and use EIs built-in upload functionality. This is a little bit cleaner and less error prone.
+However, this requires you to have mono installed. On arch the package is called just mono, on Ubuntu/Debian it should be mono-complete.
+If youre willing to use this additional setup it would probably be best to use this.
 # Some tips
 1. I usually place this window on a seperate workspace. On windows, you can access this feature using
 ```Ẁindows + Tab```.
