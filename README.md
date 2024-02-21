@@ -15,7 +15,7 @@ Currently I am not providing a binary for Linux.
 pip
 2. Run the script using ```python3 gui_version.py``` or ```python3  uploader.py```
 3. It will create a config.ini file. Edit it to include your logpath
-4. # Linux (mono/Local EI branch)
+# Linux (mono/Local EI branch)
 This new branch uses a local copy of EI to parse the logs locally and use EIs built-in upload functionality. This is a little bit cleaner and less error prone.
 However, this requires you to have mono installed. On arch the package is called just mono, on Ubuntu/Debian it should be mono-complete.
 If youre willing to use this additional setup it would probably be best to use this.
