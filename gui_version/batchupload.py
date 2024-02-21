@@ -6,6 +6,7 @@ import time
 from datetime import datetime
 import threading
 import csv
+from utils import write_log, get_current_time, start_mono_app, get_info_from_json
 
 # Create a Semaphore to control the number of threads
 exit_event = threading.Event()
@@ -21,30 +22,12 @@ def execute_dps_report_batch_with_semaphore(log, wingman):
         if not exit_event.is_set():
             upload([log], wingman)
             
-def start_mono_app(app_path, app_arguments):
-    try:
-        # Use subprocess to start the Mono app with arguments
-        subprocess.run(['mono', app_path] + app_arguments, check=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except subprocess.CalledProcessError as e:
-        print(f"Error starting Mono app: {e}")
-    except FileNotFoundError:
-        print("Mono runtime not found. Make sure Mono is installed on your system.")
-
 def intersection(logs, seen):
     set_logs = set(logs)
     set_seen = set(seen)
     result = list(set_logs - set_seen)
     return result
 
-def get_current_time():
-    ts = time.time()
-    date_time = datetime.fromtimestamp(ts)
-    ts = date_time.strftime("%H:%M:%S")
-    thread_name = threading.current_thread().name
-    thread_name = thread_name.split(" ")[0]
-    thread_name = thread_name.strip("'")
-    ts = "["+ts+"]"+thread_name+":"
-    return ts
         
 def batch_upload_window(path):
     layout = [[sg.Text("Choose a folder for batch upload", key="second",font=('Helvetica', 16))],
@@ -73,7 +56,7 @@ def batch_upload_window(path):
         if event == "folder":
             target = values["folder"]
         if event == "Exit":
-            print(get_current_time(),"Canceling...")
+            print(get_current_time(),"Batchupload: Canceling...")
             try:
                 global_length = len(logs)
             except:
@@ -109,14 +92,7 @@ def batch_upload_window(path):
             for log in logs:
                 threading.Thread(target=execute_dps_report_batch_with_semaphore, args=(log, False)).start()  
     window.close()
-def write_log(text):
-    try:
-        with open(".seen.csv", "a") as f:
-            f.write(str(text)+"\n")
-    except:
-        f = open(".seen.csv", "x")
-        f.close
-        write_log(text)
+
 def return_seen():
     seen = []
     try:
@@ -141,13 +117,14 @@ def upload(log,wingman):
     with open(ei_log) as f:
         lines = f.readlines()
     os.remove(ei_log) 
+    name = threading.current_thread().name.split(" ")[0] + ":"
     for  line in lines:
         if "dps.report" in line:
             dps_link=line.split(" ")[1]
-            print(dps_link)
+            print(get_current_time(),"Batchupload:",name,dps_link.replace("\n",""))
             write_log(log[0])
             with counter_lock:
                 counter += 1
         if "Wingman: UploadProcessed" in line:
-            print(line)
+            print(get_current_time(),"Batchupload:",name,line.replace("\n",""))
             

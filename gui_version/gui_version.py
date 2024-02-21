@@ -11,7 +11,7 @@ import pyperclip
 import configparser
 import queue
 from batchupload import batch_upload_window
-from batchupload import write_log
+from utils import write_log, get_current_time, start_mono_app, get_info_from_json
 import wget
 import zipfile
 
@@ -62,37 +62,6 @@ def on_moved(event):
         print(get_current_time(), event.dest_path.split(path)[1],"log creation has now finished")
         window.start_thread(lambda: upload(event.dest_path,no_wingman), ('-THREAD-', '-THEAD ENDED-'))
 
-# Utility functions
-def get_current_time():
-    ts = time.time()
-    date_time = datetime.fromtimestamp(ts)
-    ts = date_time.strftime("%H:%M:%S")
-    ts = "["+ts+"]:"
-    return ts
-def start_mono_app(app_path, app_arguments):
-    try:
-        # Use subprocess to start the Mono app with arguments
-        subprocess.run(['mono', app_path] + app_arguments, check=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except subprocess.CalledProcessError as e:
-        print(f"Error starting Mono app: {e}")
-    except FileNotFoundError:
-        print("Mono runtime not found. Make sure Mono is installed on your system.")
-        
-        
-def get_info_from_json(dps_link):
-    try:
-        url = "https://dps.report/getJson?permalink="+dps_link
-        response = requests.get(url)
-        content = response.json()
-        duration = content.get("duration")
-        success = content.get("success")
-        parts = duration.split()
-        duration = parts[0]+parts[1]
-    except Exception as e:
-        print(e)
-        duration = "0"
-        success = False
-    return duration, success
       
 def upload(log,wingman):
     linux = ["-p"]
@@ -110,9 +79,9 @@ def upload(log,wingman):
         if "dps.report" in line:
             dps_link=line.split(" ")[1]
             dps_link = dps_link.replace("\n","")
-            print(get_current_time(), "permalink:",dps_link)
+            print(get_current_time(),"permalink:",dps_link)
         if "Wingman: UploadProcessed" in line:
-            print(get_current_time(), line.replace("\n",""))
+            print(get_current_time(),line.replace("\n",""))
     duration, success_value = get_info_from_json(dps_link)
     result_queue.put((success_value, dps_link, duration))
     write_log(log)
