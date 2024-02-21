@@ -58,7 +58,7 @@ def on_moved(event):
             historicalSize = os.path.getsize(event.dest_path)
             time.sleep(5)
         print(get_current_time(), event.dest_path.split(path)[1],"log creation has now finished")
-        window.start_thread(lambda: upload(event.dest_path,result_queue), ('-THREAD-', '-THEAD ENDED-'))
+        window.start_thread(lambda: upload(event.dest_path,result_queue,no_wingman), ('-THREAD-', '-THEAD ENDED-'))
 
 # Utility functions
 def get_current_time():
@@ -76,15 +76,28 @@ def start_mono_app(app_path, app_arguments):
     except FileNotFoundError:
         print("Mono runtime not found. Make sure Mono is installed on your system.")
         
-def upload(args):
-    print("Running EI")
-    log = args[0]
+        
+def upload(log,wingman):
     linux = ["-p"]
-    config = ["-c EI/Settings/sample.conf"]
-    args = linux + +config+ args
-    start_mono_app("/home/anni/Code/wingman_autouploader/EI/GuildWars2EliteInsights.exe",args)
-    write_log(log)
+    if wingman:
+        config = ["-c", "EI/Settings/wingman.conf"]
+    else:
+        config = ["-c", "EI/Settings/no_wingman.conf"]
+    args = linux + config + log
+    print("[DEBUG] Arglist:", args)
+    start_mono_app("EI/GuildWars2EliteInsights.exe",args)
+    ei_log = log[0].replace(".zevtc", ".log")
+    with open(ei_log) as f:
+        lines = f.readlines()
+    for  line in lines:
+        if "dps.report" in line:
+            dps_link=line.split(" ")[1]
+            print(dps_link)
+    # Todo...I guess I will have to handle local json files sadge
+    success_value = True
+    duration = 0
     result_queue.put(success_value, dps_link, duration)
+    write_log(dps_link)
     
 
 def is_shitlog(dps_link):
@@ -118,8 +131,7 @@ button_row_one= [sg.Button("Reset", size=(26, 2)),
 
 button_row_two =[sg.Button("Copy all to Clipboard", size=(26, 2)),
       sg.Button("Copy only Kills", size=(26,2))]
-checkbox_one = [sg.Checkbox("Show wipes  ", key='wipes', default=showwipes),
-      sg.Checkbox("Upload wipes to Wingman", key ='bool_wingman', default=pushwipes)]
+checkbox_one = [sg.Checkbox("Show wipes  ", key='wipes', default=showwipes)]
 checkbox_two = [sg.Checkbox("Filter shitlogs", key ='shitlog_checkbox', default=filter_shitlogs),
         sg.Checkbox("Disable Wingman Upload", key='global_wingman', default=no_wingman)]
 batch_upload = [sg.Button("Batch Upload", key="batch", size=(13,1))]
@@ -220,13 +232,6 @@ try:
             if values["wipes"] != showwipes:
                 showwipes = False
                 reprint()
-        # Push to wingman
-        if values['bool_wingman'] == True:
-            config.set('Settings', 'pushwipes', 'True')
-            pushwipes = True
-        elif values['bool_wingman'] == False:
-            config.set('Settings', 'pushwipes', 'False')
-            pushwipes = False
         # Disable wingmanupload entirely
         if values['global_wingman'] == True:
             config.set('Settings', 'no_wingman', 'True')
