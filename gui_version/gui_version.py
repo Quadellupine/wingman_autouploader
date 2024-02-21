@@ -77,6 +77,19 @@ def start_mono_app(app_path, app_arguments):
         print("Mono runtime not found. Make sure Mono is installed on your system.")
         
         
+def get_info_from_json(dps_link):
+    try:
+        url = "https://dps.report/getJson?permalink="+dps_link
+        response = requests.get(url)
+        content = response.json()
+        duration = content.get("duration")
+        success = content.get("success")
+        parts = duration.split()
+        duration = parts[0]+parts[1]
+    except:
+        duration = "0"
+    return duration, success
+      
 def upload(log,wingman):
     linux = ["-p"]
     if wingman:
@@ -93,9 +106,7 @@ def upload(log,wingman):
         if "dps.report" in line:
             dps_link=line.split(" ")[1]
             print(dps_link)
-    # Todo...I guess I will have to handle local json files sadge
-    success_value = True
-    duration = 0
+    duration, success_value = get_info_from_json(dps_link)
     result_queue.put(success_value, dps_link, duration)
     write_log(dps_link)
     
