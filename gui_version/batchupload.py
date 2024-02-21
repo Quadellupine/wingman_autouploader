@@ -17,10 +17,10 @@ max_threads = 3
 thread_semaphore = threading.Semaphore(max_threads)
 import subprocess
 
-def execute_dps_report_batch_with_semaphore(log, wingman):
+def execute_dps_report_batch_with_semaphore(log):
     with thread_semaphore:
         if not exit_event.is_set():
-            upload([log], wingman)
+            upload([log])
             
 def intersection(logs, seen):
     set_logs = set(logs)
@@ -90,7 +90,7 @@ def batch_upload_window(path):
                 window["status"].update("Done!")
                 window.refresh()
             for log in logs:
-                threading.Thread(target=execute_dps_report_batch_with_semaphore, args=(log, False)).start()  
+                threading.Thread(target=execute_dps_report_batch_with_semaphore, args=(log,)).start()  
     window.close()
 
 def return_seen():
@@ -104,13 +104,10 @@ def return_seen():
     seen = [element for sublist in seen for element in sublist]
     return seen
         
-def upload(log,wingman):
+def upload(log):
     global counter
     linux = ["-p"]
-    if not wingman:
-        config = ["-c", "wingman.conf"]
-    else:
-        config = ["-c", "no_wingman.conf"]
+    config = ["-c", "batch.conf"]
     args = linux + config + log
     start_mono_app("EI/GuildWars2EliteInsights.exe",args)
     ei_log = log[0].replace(".zevtc", ".log")
