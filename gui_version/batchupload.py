@@ -24,7 +24,7 @@ def execute_dps_report_batch_with_semaphore(log, wingman):
 def start_mono_app(app_path, app_arguments):
     try:
         # Use subprocess to start the Mono app with arguments
-        subprocess.run(['mono', app_path] + app_arguments, check=True)
+        subprocess.run(['mono', app_path] + app_arguments, check=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except subprocess.CalledProcessError as e:
         print(f"Error starting Mono app: {e}")
     except FileNotFoundError:
@@ -131,14 +131,12 @@ def return_seen():
 def upload(log,wingman):
     global counter
     linux = ["-p"]
-    if wingman:
-        config = ["-c", "gui_version/wingman.conf"]
+    if not wingman:
+        config = ["-c", "wingman.conf"]
     else:
-        config = ["-c", "gui_version/no_wingman.conf"]
+        config = ["-c", "no_wingman.conf"]
     args = linux + config + log
-    print("[DEBUG] Arglist:", args)
     start_mono_app("EI/GuildWars2EliteInsights.exe",args)
-    time.sleep(15)
     ei_log = log[0].replace(".zevtc", ".log")
     with open(ei_log) as f:
         lines = f.readlines()
@@ -150,4 +148,6 @@ def upload(log,wingman):
             write_log(log[0])
             with counter_lock:
                 counter += 1
+        if "Wingman: UploadProcessed" in line:
+            print(line)
             

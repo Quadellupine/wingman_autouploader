@@ -72,7 +72,7 @@ def get_current_time():
 def start_mono_app(app_path, app_arguments):
     try:
         # Use subprocess to start the Mono app with arguments
-        subprocess.run(['mono', app_path] + app_arguments, check=True)
+        subprocess.run(['mono', app_path] + app_arguments, check=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except subprocess.CalledProcessError as e:
         print(f"Error starting Mono app: {e}")
     except FileNotFoundError:
@@ -96,7 +96,7 @@ def get_info_from_json(dps_link):
       
 def upload(log,wingman):
     linux = ["-p"]
-    if wingman:
+    if not wingman:
         config = ["-c", "wingman.conf"]
     else:
         config = ["-c", "no_wingman.conf"]
@@ -106,14 +106,16 @@ def upload(log,wingman):
     with open(ei_log) as f:
         lines = f.readlines()
     os.remove(ei_log) 
-    for  line in lines:
+    for line in lines:
         if "dps.report" in line:
             dps_link=line.split(" ")[1]
             dps_link = dps_link.replace("\n","")
             print(get_current_time(), "permalink:",dps_link)
+        if "Wingman: UploadProcessed" in line:
+            print(get_current_time(), line.replace("\n",""))
     duration, success_value = get_info_from_json(dps_link)
     result_queue.put((success_value, dps_link, duration))
-    write_log(dps_link)
+    write_log(log)
     
 
 def is_shitlog(dps_link):
