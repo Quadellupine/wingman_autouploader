@@ -11,6 +11,9 @@ import configparser
 import queue
 from batchupload import batch_upload_window
 from batchupload import write_log
+import wget
+import zipfile
+
 # Queue for multithreading
 result_queue = queue.Queue()
 # Load configuration
@@ -38,8 +41,6 @@ try:
 except:
     sg.popup("Malformed config.ini. Delete it to generate a clean one.",title="Error")
     exit()
-# Check for EI
-
 # Watchdog Eventhandling
 def on_created(event):
     return
@@ -129,12 +130,20 @@ def is_shitlog(dps_link):
 
 # Wow binary tables actually being useful for once
 def reprint():
-    print("reprinting...")
     window["text"].update("")
     for link in link_collection:
         if link[0] or showwipes:
             if not (is_shitlog(link[1]) and filter_shitlogs):
                 window["text"].print("[",link[2],"]",link[1])
+                
+# Check for EI
+if not os.path.isdir("EI"):
+    print(get_current_time(),"EI is missing, downloading it")
+    wget.download("https://github.com/baaron4/GW2-Elite-Insights-Parser/releases/download/v2.64.0.0/GW2EI.zip", "EI.zip")
+    with zipfile.ZipFile("EI.zip", 'r') as zip_ref:
+        zip_ref.extractall("EI")
+    os.remove("EI.zip")
+    
 # Begin the actual PROGRAM
 # ----------------  Create main Layout  ----------------
 textbox = [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)]
@@ -177,27 +186,22 @@ start_time = time.time()
 # Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
 link_collection = []
-#result_queue.put((True, "_trio", 0))
-#result_queue.put((False, "_trio", 0))
+result_queue.put((True, "_trio", 0))
+result_queue.put((False, "_trio_wipe", 0))
 
 try:
     while True:
         time.sleep(0.05)
         event, values = window.read(timeout=100)
+        # The threads will place finished logs in a queue. The GUI periodically checks for new logs in the queue and then processes them
         try:
             success_value, dps_link, duration = result_queue.get_nowait()
-            bool_shitlog = is_shitlog(dps_link)
-            # Filter logs that nobody wants to see anyways...
-            if (bool_shitlog and not filter_shitlogs) or (not bool_shitlog):
-                link_collection.append((success_value, dps_link, duration))
-                if dps_link == "skip":
-                    continue
-                # Only printing successful logs to GUI or if the user wants wipes
-
-                if success_value or showwipes and (not bool_shitlog):
-                    window["text"].print("[",duration,"]",dps_link)
+            link_collection.append((success_value, dps_link, duration))
+            # Print according to user selection
+            reprint()
         except queue.Empty:
             pass
+        
         #Check for events, extremely UGLY but what can you do
         if event == sg.WIN_CLOSED or event == 'Exit':
             with open(config_file_path, 'w') as configfile:
@@ -268,6 +272,7 @@ except KeyboardInterrupt:
     my_observer.join()
 except Exception as e:
     print("Oh no!")
+    print(e)
     exception = str(e)
     now = datetime.now()
     filename = now.strftime("%d_%m_%Y_%H:%M:%S")

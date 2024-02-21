@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-import requests
+import os
 import math
 from os import walk, path
 import time
@@ -14,11 +14,21 @@ counter = 0
 global_length = 1
 max_threads = 3
 thread_semaphore = threading.Semaphore(max_threads)
+import subprocess
 
-def execute_dps_report_batch_with_semaphore(log, param):
+def execute_dps_report_batch_with_semaphore(log, wingman):
     with thread_semaphore:
         if not exit_event.is_set():
-            dps_report_batch(log, param)    
+            upload([log], wingman)
+            
+def start_mono_app(app_path, app_arguments):
+    try:
+        # Use subprocess to start the Mono app with arguments
+        subprocess.run(['mono', app_path] + app_arguments, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error starting Mono app: {e}")
+    except FileNotFoundError:
+        print("Mono runtime not found. Make sure Mono is installed on your system.")
 
 def intersection(logs, seen):
     set_logs = set(logs)
@@ -35,13 +45,6 @@ def get_current_time():
     thread_name = thread_name.strip("'")
     ts = "["+ts+"]"+thread_name+":"
     return ts
-
-def upload_wingman_batch(dps_link):
-    url = "https://gw2wingman.nevermindcreations.de/api/importLogQueued"
-    params = {"link": dps_link, 'antibot': 'true'}
-    response = requests.get(url, params=params)
-    data = response.json()
-    print(get_current_time(),"Batchupload:", data['note'])
         
 def batch_upload_window(path):
     layout = [[sg.Text("Choose a folder for batch upload", key="second",font=('Helvetica', 16))],
@@ -70,7 +73,7 @@ def batch_upload_window(path):
         if event == "folder":
             target = values["folder"]
         if event == "Exit":
-            print("Exit caught")
+            print(get_current_time(),"Canceling...")
             try:
                 global_length = len(logs)
             except:
@@ -82,7 +85,10 @@ def batch_upload_window(path):
             counter = 0
             exit_event.clear()
             target = values["folder"]
-            filenames = [path.join(root, filename) for root, _, files in walk(target) for filename in files]
+            filenames = []
+            for root, _, files in walk(target):
+                for filename in files:
+                    filenames.append(str(root)+"/"+str(filename))
             # Throw out every file that is not an evtc file
             logs = []
             for file in filenames:
@@ -101,12 +107,12 @@ def batch_upload_window(path):
                 window["status"].update("Done!")
                 window.refresh()
             for log in logs:
-                threading.Thread(target=execute_dps_report_batch_with_semaphore, args=(log, 0)).start()  
+                threading.Thread(target=execute_dps_report_batch_with_semaphore, args=(log, False)).start()  
     window.close()
 def write_log(text):
     try:
         with open(".seen.csv", "a") as f:
-            f.write(text+"\n")
+            f.write(str(text)+"\n")
     except:
         f = open(".seen.csv", "x")
         f.close
@@ -122,37 +128,26 @@ def return_seen():
     seen = [element for sublist in seen for element in sublist]
     return seen
         
-def dps_report_batch(file_to_upload, domain):
-    if domain >= 15:
-        return("Failed")
-    if domain % 3 == 0:
-        url = "https://dps.report/uploadContent"
-    elif domain % 3 == 1:
-        url = "https://b.dps.report/uploadContent"
-    elif domain % 3 == 2:
-        url = "http://a.dps.report/uploadContent" 
-    files = {'file': (file_to_upload, open(file_to_upload, 'rb'))}
-    data = {'json': '1', 'generator': 'ei'}
-    headers = {'Accept': 'application/json'}
-    try:
-        response = requests.post(url, files=files, data=data, timeout=30, headers=headers)
-        # Make the response is actually there?? idk at this point
-        time.sleep(5)
-        data = response.json()
-    except Exception as e:
-        print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
-        time.sleep(2**domain) #exponential backoff
-        return dps_report_batch(file_to_upload, domain+1)
-    # WHY does this error?? Who knows
-    try: 
-        print(get_current_time(),"Batchupload:", data['permalink'])
-    except Exception as e:
-        print(get_current_time(),"Error, retrying(",2**domain,"s): ", e)
-        time.sleep(2**domain) #exponential backoff
-        return dps_report_batch(file_to_upload, domain+1)
-    upload_wingman_batch(data['permalink'])
-    write_log(file_to_upload)
+def upload(log,wingman):
     global counter
-    with counter_lock:
-        counter += 1
-    return data['permalink']
+    linux = ["-p"]
+    if wingman:
+        config = ["-c", "gui_version/wingman.conf"]
+    else:
+        config = ["-c", "gui_version/no_wingman.conf"]
+    args = linux + config + log
+    print("[DEBUG] Arglist:", args)
+    start_mono_app("EI/GuildWars2EliteInsights.exe",args)
+    time.sleep(15)
+    ei_log = log[0].replace(".zevtc", ".log")
+    with open(ei_log) as f:
+        lines = f.readlines()
+    os.remove(ei_log) 
+    for  line in lines:
+        if "dps.report" in line:
+            dps_link=line.split(" ")[1]
+            print(dps_link)
+            write_log(log[0])
+            with counter_lock:
+                counter += 1
+            
