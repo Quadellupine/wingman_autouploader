@@ -71,13 +71,15 @@ def upload(log,wingman):
         config = ["-c", "wingman.conf"]
     else:
         config = ["-c", "no_wingman.conf"]
+    print(get_current_time(),"Selected config: ",config)
     args = linux + config + [log]
     start_mono_app("EI/GuildWars2EliteInsights.exe",args)
     ei_log = log.replace(".zevtc", ".log")
     with open(ei_log) as f:
         lines = f.readlines()
     os.remove(ei_log) 
-    for line in lines:
+    dps_link=""
+    for line in lines:        
         if "dps.report" in line:
             dps_link=line.split(" ")[1]
             dps_link = dps_link.replace("\n","")

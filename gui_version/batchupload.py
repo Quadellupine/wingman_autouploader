@@ -14,7 +14,7 @@ exit_event = threading.Event()
 counter_lock = threading.Lock()
 counter = 0
 global_length = 1
-max_threads = 3
+max_threads = 8
 thread_semaphore = threading.Semaphore(max_threads)
 import subprocess
 
@@ -49,6 +49,7 @@ def batch_upload_window(path):
         if event == "refresh":
             try:
                 progress = math.ceil(counter/len(logs)*100)
+                window["status"].update("Processed "+str(counter)+"/"+str(len(logs))+" logs")
                 if counter == len(logs):
                     window["status"].update("Done!")                   
             except:
@@ -79,9 +80,7 @@ def batch_upload_window(path):
                 if file[-4:] == "evtc":
                     logs.append(file)
             seen = return_seen()
-            print(len(logs))
             logs = intersection(logs, seen)
-            print(len(logs))
             # Set progress bar max to the amount of logs found, reset bar to 0
             window["progress"].update(0)
             window.refresh()   
@@ -105,9 +104,7 @@ def return_seen():
         print("Did not find .seen.csv, creating new file")
         f = open(".seen.csv", "x")
         f.close
-    print(len(seen))
     seen = [element for sublist in seen for element in sublist]
-    print(len(seen))
     return seen
         
 def upload(log):
