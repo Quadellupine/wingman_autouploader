@@ -79,7 +79,9 @@ def batch_upload_window(path):
                 if file[-4:] == "evtc":
                     logs.append(file)
             seen = return_seen()
+            print(len(logs))
             logs = intersection(logs, seen)
+            print(len(logs))
             # Set progress bar max to the amount of logs found, reset bar to 0
             window["progress"].update(0)
             window.refresh()   
@@ -100,9 +102,12 @@ def return_seen():
         with open('.seen.csv', newline='') as csvfile:
             seen = list(csv.reader(csvfile))
     except:
+        print("Did not find .seen.csv, creating new file")
         f = open(".seen.csv", "x")
         f.close
+    print(len(seen))
     seen = [element for sublist in seen for element in sublist]
+    print(len(seen))
     return seen
         
 def upload(log):
@@ -120,9 +125,9 @@ def upload(log):
         if "dps.report" in line:
             dps_link=line.split(" ")[1]
             print(get_current_time(),"Batchupload:",name,dps_link.replace("\n",""))
-            write_log(log[0])
         if "Wingman: UploadProcessed" in line:
             print(get_current_time(),"Batchupload:",name,line.replace("\n",""))
             with counter_lock:
                 counter += 1
+    write_log(log[0])
             
