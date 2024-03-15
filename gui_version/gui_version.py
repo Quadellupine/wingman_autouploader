@@ -11,7 +11,7 @@ import pyperclip
 import configparser
 import queue
 from batchupload import batch_upload_window
-from utils import write_log, get_current_time, start_mono_app, get_info_from_json
+from utils import write_log, get_current_time, start_mono_app, get_info_from_json, get_wingman_percentile
 import wget
 import zipfile
 
@@ -108,11 +108,15 @@ def is_shitlog(dps_link):
 
 # Wow binary tables actually being useful for once
 def reprint():
+    print(get_current_time(),"Reprint requested, trying to fetch percentiles again...")
     window["text"].update("")
     for link in link_collection:
         if link[0] or showwipes:
             if not (is_shitlog(link[1]) and filter_shitlogs):
-                window["text"].print("[",link[2],"]",link[1])
+                percentile = get_wingman_percentile(link[1])
+                if percentile == None:
+                    percentile = "..."
+                window["text"].print("[",link[2],percentile,"]",link[1])
                 
 # Check for EI
 if not os.path.isdir("EI"):
@@ -137,7 +141,7 @@ button_row_two =[sg.Button("Copy all to Clipboard", size=(26, 2)),
 checkbox_one = [sg.Checkbox("Show wipes  ", key='wipes', default=showwipes)]
 checkbox_two = [sg.Checkbox("Filter shitlogs", key ='shitlog_checkbox', default=filter_shitlogs),
         sg.Checkbox("Disable Wingman Upload", key='global_wingman', default=no_wingman)]
-batch_upload = [sg.Button("Batch Upload", key="batch", size=(13,1))]
+batch_upload = [sg.Button("Batch Upload", key="batch", size=(13,1)), sg.Button("Refresh", key="refresh", size=(13,1))]
 
 layout = [textbox, button_row_one, button_row_two, checkbox_one, checkbox_two, batch_upload]
 # Set icon on windows, still need to figure out how to detect Linux binaries
@@ -190,6 +194,8 @@ try:
                 config.write(configfile)
             break
         # Open additional Window to start a batch upload, handled in additional python file
+        elif event == "refresh":
+            reprint()
         elif event == "batch":
             batch_upload_window(path)
             

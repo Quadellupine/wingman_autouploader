@@ -104,13 +104,14 @@ def return_seen():
         print("Did not find .seen.csv, creating new file")
         f = open(".seen.csv", "x")
         f.close
-    seen = [element for sublist in seen for element in sublist]
+    #seen = [element for sublist in seen for element in sublist]
+    seen = [row[0] for row in seen]
     return seen
         
 def upload(log):
     global counter
     linux = ["-p"]
-    config = ["-c", "batch.conf"]
+    config = ["-c", "wingman.conf"]
     args = linux + config + log
     start_mono_app("EI/GuildWars2EliteInsights.exe",args)
     ei_log = log[0].replace(".zevtc", ".log")

@@ -1,7 +1,10 @@
 import time 
 from datetime import datetime
 import subprocess
+import json
 import requests
+import numpy as np
+
 def write_log(text):
     try:
         with open(".seen.csv", "a") as f:
@@ -39,3 +42,19 @@ def get_info_from_json(dps_link):
         duration = "0"
         success = False
     return duration, success
+
+def return_json(dps_link):
+    url = "https://dps.report/getJson?permalink="+dps_link
+    response = requests.get(url)
+    content = response.json()
+    return content
+
+
+def get_wingman_percentile(log):
+    # Get only postfix of log with dps.report shebang in the front
+    postfix = log.split("/")[-1]
+    url = "https://gw2wingman.nevermindcreations.de/api/getPercentileOfLog/"+postfix
+    response = requests.get(url)
+    content = response.json()
+    return content.get("percentile")
+
