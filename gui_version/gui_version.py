@@ -159,7 +159,8 @@ textbox = [
         auto_size_columns=False,
         col_widths=col_widths, 
         row_height=20, 
-        justification="center")]
+        justification="center",
+        header_relief="RELIEF_FLAT")]
 button_row_one= [sg.Button("Reset", size=(26, 2)),
      sg.Button("Copy last to Clipboard", size=(26, 2))]
 
@@ -228,9 +229,10 @@ try:
         elif '+CLICKED+' in event:
             # The event objects contains: The source, the event name and then the cell that has been clicked as a tuple. This means we can access the row like this:
             row = event[2][0]
-            # Now we look up the log in the data array, which holds the contents of the table that is displayed
-            selected_link = data[row][1]
-            pyperclip.copy(selected_link)
+            if row:        
+                # Now we look up the log in the data array, which holds the contents of the table that is displayed
+                selected_link = data[row][1]
+                pyperclip.copy(selected_link)
         # Copying last visible link to clipboard
         elif event == "Copy last to Clipboard":
             try:
