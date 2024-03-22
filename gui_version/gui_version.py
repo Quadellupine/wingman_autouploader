@@ -148,7 +148,7 @@ if not os.path.isdir("EI"):
 # Begin the actual PROGRAM
 # ----------------  Create main Layout  ----------------
 headings = ['time', 'log', 'percentile']
-textbox = [sg.Table(values=[],headings=headings, key='text', expand_x=True, expand_y=True)]
+textbox = [sg.Table(values=[],headings=headings, key='text', expand_x=True, expand_y=True,enable_click_events=True)]
 button_row_one= [sg.Button("Reset", size=(26, 2)),
      sg.Button("Copy last to Clipboard", size=(26, 2))]
 
@@ -214,13 +214,15 @@ try:
             reprint()
         elif event == "batch":
             batch_upload_window(logpath)
-            
+        elif '+CLICKED+' in event:
+            print("clicked on a row")
         # Copying last visible link to clipboard
         elif event == "Copy last to Clipboard":
-            last = window["text"].get()
-            last = last.split("\n")[-1]
-            if last != "":
-                last = last.split("]")[1]
+            try:
+                last = window["text"].get()
+                last = last[-1][1]
+            except:
+                last = ""
             pyperclip.copy(last)
         # Copy all visible links to clipboard
         elif event == "Copy all to Clipboard":
