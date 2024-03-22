@@ -1,7 +1,7 @@
 import time 
 from datetime import datetime
 import subprocess
-import json
+import os
 import requests
 import numpy as np
 
@@ -23,7 +23,7 @@ def get_current_time():
 def start_mono_app(app_path, app_arguments):
     try:
         # Use subprocess to start the Mono app with arguments
-        subprocess.run(['mono', app_path] + app_arguments, check=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(['mono', app_path] + app_arguments, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except subprocess.CalledProcessError as e:
         print(f"Error starting Mono app: {e}")
     except FileNotFoundError:
@@ -58,3 +58,7 @@ def get_wingman_percentile(log):
     content = response.json()
     return content.get("percentile")
 
+def get_path():
+    path = os.path.abspath(__file__)
+    path = path.rstrip(os.path.basename(__file__))
+    return path

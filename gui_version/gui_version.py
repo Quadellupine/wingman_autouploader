@@ -11,7 +11,7 @@ import pyperclip
 import configparser
 import queue
 from batchupload import batch_upload_window
-from utils import write_log, get_current_time, start_mono_app, get_info_from_json, get_wingman_percentile
+from utils import write_log, get_current_time, start_mono_app, get_info_from_json, get_wingman_percentile, get_path
 import wget
 import zipfile
 
@@ -34,6 +34,7 @@ try:
     config.read(config_file_path)
     showwipes = config.getboolean('Settings', 'showwipes')
     path = config["Settings"]["logpath"]
+    logpath = config["Settings"]["logpath"]
     sg.theme(config["Settings"]["theme"])
     pushwipes = config.getboolean('Settings', 'pushwipes')
     no_wingman = config.getboolean('Settings', 'no_wingman')
@@ -68,9 +69,11 @@ def on_moved(event):
 def upload(log,wingman):
     linux = ["-p"]
     if not wingman:
-        config = ["-c", "wingman.conf"]
+        configpath = get_path()+"wingman.conf"
+        config = ["-c", configpath]
     else:
-        config = ["-c", "no_wingman.conf"]
+        configpath = get_path()+"no_wingman.conf"
+        config = ["-c", configpath]
     print(get_current_time(),"Selected config: ",config)
     args = linux + config + [log]
     start_mono_app("EI/GuildWars2EliteInsights.exe",args)
@@ -197,7 +200,7 @@ try:
         elif event == "refresh":
             reprint()
         elif event == "batch":
-            batch_upload_window(path)
+            batch_upload_window(logpath)
             
         # Copying last visible link to clipboard
         elif event == "Copy last to Clipboard":

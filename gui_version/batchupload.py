@@ -6,7 +6,7 @@ import time
 from datetime import datetime
 import threading
 import csv
-from utils import write_log, get_current_time, start_mono_app, get_info_from_json
+from utils import write_log, get_current_time, start_mono_app, get_info_from_json, get_path
 import requests
 
 # Create a Semaphore to control the number of threads
@@ -111,7 +111,9 @@ def return_seen():
 def upload(log):
     global counter
     linux = ["-p"]
-    config = ["-c", "wingman.conf"]
+    configpath = get_path()+"wingman.conf"
+    print(configpath)
+    config = ["-c", configpath]
     args = linux + config + log
     start_mono_app("EI/GuildWars2EliteInsights.exe",args)
     ei_log = log[0].replace(".zevtc", ".log")
@@ -123,7 +125,7 @@ def upload(log):
         if "dps.report" in line:
             dps_link=line.split(" ")[1]
             print(get_current_time(),"Batchupload:",name,dps_link.replace("\n",""))
-        if "Wingman: UploadProcessed" in line:
+        if "Wingman: UploadProcessed successful" in line:
             print(get_current_time(),"Batchupload:",name,line.replace("\n",""))
             with counter_lock:
                 counter += 1
