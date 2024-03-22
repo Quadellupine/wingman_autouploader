@@ -171,9 +171,8 @@ checkbox_one = [sg.Checkbox("Show wipes  ", key='wipes', default=showwipes),
 checkbox_two = [sg.Checkbox("Disable Wingman Upload", key='global_wingman', default=no_wingman)]
 batch_upload = [sg.Button("Batch Upload", key="batch", size=(13,1)), 
                 sg.Button("Refresh(debug)", key="refresh", size=(13,1))]
-seperator = [sg.HorizontalSeparator()]
 
-layout = [textbox, button_row_one, button_row_two, checkbox_one, checkbox_two,seperator, batch_upload]
+layout = [textbox, button_row_one, button_row_two, checkbox_one, checkbox_two,batch_upload]
 # Set icon on windows, still need to figure out how to detect Linux binaries
 if getattr(sys, 'frozen', False):
     base_dir = sys._MEIPASS
@@ -201,10 +200,11 @@ my_observer.start()
 start_time = time.time()
 # Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
+# List of ALL logs that have been uploaded. Not necessarily all logs currently shown in the GUI
 link_collection = []
-result_queue.put((True, "https://dps.report/NxAB-20240320-215554_matt", 0))
-result_queue.put((False, "_trio_wipe", 0))
-#upload("/mnt/Storage/Logs/arcdps.cbtlogs/Standard Kitty Golem/20240221-182436.zevtc",False)
+# These are for debugging if needed
+#result_queue.put((True, "https://dps.report/NxAB-20240320-215554_matt", 0))
+#result_queue.put((False, "_trio_wipe", 0))
 try:
     while True:
         time.sleep(0.05)
@@ -276,7 +276,7 @@ try:
             if values["wipes"] != showwipes:
                 showwipes = False
                 reprint()
-        # Disable wingmanupload entirely
+        # Disable wingman upload entirely
         if values['global_wingman'] == True:
             config.set('Settings', 'no_wingman', 'True')
             no_wingman = True
