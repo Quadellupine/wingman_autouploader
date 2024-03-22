@@ -26,7 +26,7 @@ data = []
 if not os.path.exists(config_file_path):
     with open("config.ini", 'w') as file:
         # Create .ini file with some defaults
-        file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Topanga\npushwipes = False\nno_wingman = False\nfilter_shitlogs = True\nheight=500\nwidth=450")
+        file.write("[Settings]\nshowwipes = False\nlogpath=.\ntheme = Topanga\npushwipes = False\nno_wingman = False\nfilter_shitlogs = True\nheight=500\nwidth=470")
         file.close()
     config.read(config_file_path)
         
@@ -148,9 +148,9 @@ if not os.path.isdir("EI"):
     
 # Begin the actual PROGRAM
 # ----------------  Create main Layout  ----------------
-headings = ['time', 'log', 'Success?']
-col_widths = [1, 20, 1]
-textbox = [sg.Table(values=[],headings=headings, key='table', expand_x=True, expand_y=True,enable_click_events=True,auto_size_columns=False,col_widths=col_widths)]
+headings = ['time', 'log', 'Wipe']
+col_widths = [5, 32, 7]
+textbox = [sg.Table(values=[],headings=headings, key='table', expand_x=True, expand_y=True,enable_click_events=True,auto_size_columns=False,col_widths=col_widths, row_height=20, justification="center")]
 button_row_one= [sg.Button("Reset", size=(26, 2)),
      sg.Button("Copy last to Clipboard", size=(26, 2))]
 
