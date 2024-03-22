@@ -137,7 +137,7 @@ def reprint():
 if not os.path.isdir("EI"):
     print(get_current_time(),"EI is missing, downloading it")
     query = requests.get(EIQueryURL).json()
-    print("Version: ",query["tag_name"])
+    print("Version: ",query["html_url"])
     recentEI = query["assets"][0]
     assetURL = recentEI["browser_download_url"]
     wget.download(assetURL, "EI.zip")
