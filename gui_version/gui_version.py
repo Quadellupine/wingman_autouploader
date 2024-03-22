@@ -12,7 +12,6 @@ import queue
 from batchupload import batch_upload_window
 from utils import write_log, get_current_time, start_mono_app, get_info_from_json, get_wingman_percentile, get_path
 import wget
-import webbrowser
 import zipfile
 
 # Find latest EI release
@@ -150,7 +149,17 @@ if not os.path.isdir("EI"):
 # ----------------  Create main Layout  ----------------
 headings = ['time', 'log', 'Wipe']
 col_widths = [5, 32, 7]
-textbox = [sg.Table(values=[],headings=headings, key='table', expand_x=True, expand_y=True,enable_click_events=True,auto_size_columns=False,col_widths=col_widths, row_height=20, justification="center")]
+textbox = [
+    sg.Table(
+        values=[],headings=headings,
+        key='table',
+        expand_x=True,
+        expand_y=True,
+        enable_click_events=True,
+        auto_size_columns=False,
+        col_widths=col_widths, 
+        row_height=20, 
+        justification="center")]
 button_row_one= [sg.Button("Reset", size=(26, 2)),
      sg.Button("Copy last to Clipboard", size=(26, 2))]
 
@@ -222,7 +231,6 @@ try:
             # Now we look up the log in the data array, which holds the contents of the table that is displayed
             selected_link = data[row][1]
             pyperclip.copy(selected_link)
-            webbrowser.open_new_tab(selected_link)
         # Copying last visible link to clipboard
         elif event == "Copy last to Clipboard":
             try:
