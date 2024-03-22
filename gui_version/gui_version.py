@@ -63,7 +63,10 @@ def on_moved(event):
             historicalSize = os.path.getsize(event.dest_path)
             time.sleep(5)
         print(get_current_time(), event.dest_path.split(path)[1],"log creation has now finished")
-        window.start_thread(lambda: upload(event.dest_path,no_wingman), ('-THREAD-', '-THEAD ENDED-'))
+        if "WvW/" in event.dest_path:
+            window.start_thread(lambda: upload(event.dest_path,True), ('-THREAD-', '-THEAD ENDED-'))
+        else:
+            window.start_thread(lambda: upload(event.dest_path,no_wingman), ('-THREAD-', '-THEAD ENDED-'))
 
       
 def upload(log,wingman):
