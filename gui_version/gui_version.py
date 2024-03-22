@@ -12,6 +12,7 @@ import queue
 from batchupload import batch_upload_window
 from utils import write_log, get_current_time, start_mono_app, get_info_from_json, get_wingman_percentile, get_path
 import wget
+import webbrowser
 import zipfile
 
 # Find latest EI release
@@ -113,7 +114,7 @@ def is_shitlog(dps_link):
 def clear_table():
     global data 
     data = []
-    window["text"].update(values=data)
+    window["table"].update(values=data)
 # Wow binary tables actually being useful for once
 def reprint():
     print(get_current_time(),"Reprint requested, trying to fetch percentiles again...")
@@ -127,11 +128,11 @@ def reprint():
                 new_entry = [
                 link[2],
                 link[1],
-                percentile
+                link[0]
                 ]
                 data.append(new_entry)
                 # Update the table
-                window["text"].update(values=data)
+                window["table"].update(values=data)
                 
 # Check for EI
 if not os.path.isdir("EI"):
@@ -147,8 +148,9 @@ if not os.path.isdir("EI"):
     
 # Begin the actual PROGRAM
 # ----------------  Create main Layout  ----------------
-headings = ['time', 'log', 'percentile']
-textbox = [sg.Table(values=[],headings=headings, key='text', expand_x=True, expand_y=True,enable_click_events=True)]
+headings = ['time', 'log', 'Success?']
+col_widths = [1, 20, 1]
+textbox = [sg.Table(values=[],headings=headings, key='table', expand_x=True, expand_y=True,enable_click_events=True,auto_size_columns=False,col_widths=col_widths)]
 button_row_one= [sg.Button("Reset", size=(26, 2)),
      sg.Button("Copy last to Clipboard", size=(26, 2))]
 
@@ -188,7 +190,7 @@ start_time = time.time()
 # Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
 link_collection = []
-result_queue.put((True, "_trio", 0))
+result_queue.put((True, "https://dps.report/NxAB-20240320-215554_matt", 0))
 result_queue.put((False, "_trio_wipe", 0))
 #upload("/mnt/Storage/Logs/arcdps.cbtlogs/Standard Kitty Golem/20240221-182436.zevtc",False)
 try:
@@ -215,11 +217,16 @@ try:
         elif event == "batch":
             batch_upload_window(logpath)
         elif '+CLICKED+' in event:
-            print("clicked on a row")
+            # The event objects contains: The source, the event name and then the cell that has been clicked as a tuple. This means we can access the row like this:
+            row = event[2][0]
+            # Now we look up the log in the data array, which holds the contents of the table that is displayed
+            selected_link = data[row][1]
+            pyperclip.copy(selected_link)
+            webbrowser.open_new_tab(selected_link)
         # Copying last visible link to clipboard
         elif event == "Copy last to Clipboard":
             try:
-                last = window["text"].get()
+                last = window["table"].get()
                 last = last[-1][1]
             except:
                 last = ""
