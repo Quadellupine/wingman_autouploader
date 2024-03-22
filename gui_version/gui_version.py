@@ -5,7 +5,6 @@ from watchdog.events import PatternMatchingEventHandler
 import sys
 import requests
 import os
-import subprocess
 import PySimpleGUI as sg
 import pyperclip
 import configparser
@@ -22,6 +21,7 @@ result_queue = queue.Queue()
 # Load configuration
 config = configparser.ConfigParser()
 config_file_path = "config.ini"
+data = []
 if not os.path.exists(config_file_path):
     with open("config.ini", 'w') as file:
         # Create .ini file with some defaults
@@ -109,17 +109,29 @@ def is_shitlog(dps_link):
             return True
     return False
 
+# Clear table
+def clear_table():
+    global data 
+    data = []
+    window["text"].update(values=data)
 # Wow binary tables actually being useful for once
 def reprint():
     print(get_current_time(),"Reprint requested, trying to fetch percentiles again...")
-    window["text"].update("")
+    clear_table()
     for link in link_collection:
         if link[0] or showwipes:
             if not (is_shitlog(link[1]) and filter_shitlogs):
                 percentile = get_wingman_percentile(link[1])
                 if percentile == None:
                     percentile = "..."
-                window["text"].print("[",link[2],percentile,"]",link[1])
+                new_entry = [
+                link[2],
+                link[1],
+                percentile
+                ]
+                data.append(new_entry)
+                # Update the table
+                window["text"].update(values=data)
                 
 # Check for EI
 if not os.path.isdir("EI"):
@@ -135,7 +147,8 @@ if not os.path.isdir("EI"):
     
 # Begin the actual PROGRAM
 # ----------------  Create main Layout  ----------------
-textbox = [sg.Multiline('', size=(120, 20), key='text', autoscroll=True, disabled=True)]
+headings = ['time', 'log', 'percentile']
+textbox = [sg.Table(values=[],headings=headings, key='text', expand_x=True, expand_y=True)]
 button_row_one= [sg.Button("Reset", size=(26, 2)),
      sg.Button("Copy last to Clipboard", size=(26, 2))]
 
@@ -175,8 +188,8 @@ start_time = time.time()
 # Keeping track of the seen files is necessary because somehow the modified event gets procced a million times
 seen_files = []
 link_collection = []
-#result_queue.put((True, "_trio", 0))
-#result_queue.put((False, "_trio_wipe", 0))
+result_queue.put((True, "_trio", 0))
+result_queue.put((False, "_trio_wipe", 0))
 #upload("/mnt/Storage/Logs/arcdps.cbtlogs/Standard Kitty Golem/20240221-182436.zevtc",False)
 try:
     while True:
@@ -226,7 +239,7 @@ try:
             pyperclip.copy(s)
         # Reset memory of links
         elif event == "Reset":
-            window["text"].update("")
+            clear_table()
             link_collection = []  
         # Upload wipes              
         elif values['wipes'] == True:
