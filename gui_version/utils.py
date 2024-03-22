@@ -21,13 +21,17 @@ def get_current_time():
     ts = "["+ts+"]:"
     return ts
 def start_mono_app(app_path, app_arguments):
-    try:
-        # Use subprocess to start the Mono app with arguments
-        subprocess.run(['mono', app_path] + app_arguments, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except subprocess.CalledProcessError as e:
-        print(f"Error starting Mono app: {e}")
-    except FileNotFoundError:
-        print("Mono runtime not found. Make sure Mono is installed on your system.")        
+    osname = platform.system()
+    if osname =="Windows":
+        subprocess.run([app_path] + app_arguments)
+    else:
+        try:
+            # Use subprocess to start the Mono app with arguments
+            subprocess.run(['mono', app_path] + app_arguments, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except subprocess.CalledProcessError as e:
+            print(f"Error starting Mono app: {e}")
+        except FileNotFoundError:
+            print("Mono runtime not found. Make sure Mono is installed on your system.")     
 def get_info_from_json(dps_link):
     try:
         url = "https://dps.report/getJson?permalink="+dps_link
