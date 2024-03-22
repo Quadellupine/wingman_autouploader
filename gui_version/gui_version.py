@@ -147,7 +147,7 @@ if not os.path.isdir("EI"):
     
 # Begin the actual PROGRAM
 # ----------------  Create main Layout  ----------------
-headings = ['time', 'log', 'Wipe']
+headings = ['Time', 'Link', 'Wipe']
 col_widths = [5, 32, 7]
 textbox = [
     sg.Table(
@@ -166,12 +166,14 @@ button_row_one= [sg.Button("Reset", size=(26, 2)),
 
 button_row_two =[sg.Button("Copy all to Clipboard", size=(26, 2)),
       sg.Button("Copy only Kills", size=(26,2))]
-checkbox_one = [sg.Checkbox("Show wipes  ", key='wipes', default=showwipes)]
-checkbox_two = [sg.Checkbox("Filter shitlogs", key ='shitlog_checkbox', default=filter_shitlogs),
-        sg.Checkbox("Disable Wingman Upload", key='global_wingman', default=no_wingman)]
-batch_upload = [sg.Button("Batch Upload", key="batch", size=(13,1)), sg.Button("Refresh", key="refresh", size=(13,1))]
+checkbox_one = [sg.Checkbox("Show wipes  ", key='wipes', default=showwipes),
+                sg.Checkbox("Filter shitlogs", key ='shitlog_checkbox', default=filter_shitlogs)]
+checkbox_two = [sg.Checkbox("Disable Wingman Upload", key='global_wingman', default=no_wingman)]
+batch_upload = [sg.Button("Batch Upload", key="batch", size=(13,1)), 
+                sg.Button("Refresh(debug)", key="refresh", size=(13,1))]
+seperator = [sg.HorizontalSeparator()]
 
-layout = [textbox, button_row_one, button_row_two, checkbox_one, checkbox_two, batch_upload]
+layout = [textbox, button_row_one, button_row_two, checkbox_one, checkbox_two,seperator, batch_upload]
 # Set icon on windows, still need to figure out how to detect Linux binaries
 if getattr(sys, 'frozen', False):
     base_dir = sys._MEIPASS
@@ -229,10 +231,13 @@ try:
         elif '+CLICKED+' in event:
             # The event objects contains: The source, the event name and then the cell that has been clicked as a tuple. This means we can access the row like this:
             row = event[2][0]
-            if row:        
+            try:        
                 # Now we look up the log in the data array, which holds the contents of the table that is displayed
                 selected_link = data[row][1]
                 pyperclip.copy(selected_link)
+                sg.popup_notify('Copied!',display_duration_in_ms = 700, fade_in_duration=0)
+            except:
+                pass
         # Copying last visible link to clipboard
         elif event == "Copy last to Clipboard":
             try:
