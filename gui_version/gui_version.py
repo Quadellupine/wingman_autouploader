@@ -147,7 +147,7 @@ if not os.path.isdir("EI"):
     
 # Begin the actual PROGRAM
 # ----------------  Create main Layout  ----------------
-headings = ['Time', 'Link(Click to copy)', 'Wipe']
+headings = ['Time', 'Link (Click to copy)', 'Wipe']
 col_widths = [5, 32, 7]
 textbox = [
     sg.Table(
