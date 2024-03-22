@@ -127,7 +127,7 @@ def reprint():
                 new_entry = [
                 link[2],
                 link[1],
-                link[0]
+                not link[0]
                 ]
                 data.append(new_entry)
                 # Update the table
@@ -147,7 +147,7 @@ if not os.path.isdir("EI"):
     
 # Begin the actual PROGRAM
 # ----------------  Create main Layout  ----------------
-headings = ['Time', 'Link', 'Wipe']
+headings = ['Time', 'Link(Click to copy)', 'Wipe']
 col_widths = [5, 32, 7]
 textbox = [
     sg.Table(
@@ -235,7 +235,7 @@ try:
                 # Now we look up the log in the data array, which holds the contents of the table that is displayed
                 selected_link = data[row][1]
                 pyperclip.copy(selected_link)
-                sg.popup_notify('Copied!',display_duration_in_ms = 700, fade_in_duration=0)
+                sg.popup_notify('Copied!',display_duration_in_ms = 1000, fade_in_duration=0, alpha=1)
             except:
                 pass
         # Copying last visible link to clipboard
