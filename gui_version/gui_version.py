@@ -77,7 +77,7 @@ def upload(log,wingman):
     ei_log = log.replace(".zevtc", ".log")
     with open(ei_log) as f:
         lines = f.readlines()
-    os.remove(ei_log) 
+    #os.remove(ei_log) 
     dps_link=""
     for line in lines:        
         if "dps.report" in line:
