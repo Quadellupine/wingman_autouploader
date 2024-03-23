@@ -71,10 +71,12 @@ def on_moved(event):
       
 def upload(log,wingman):
     linux = ["-p"]
+    configpath = get_path()+"wingman.conf"
+    config = ["-c", configpath]
     if not wingman:
         configpath = get_path()+"wingman.conf"
         config = ["-c", configpath]
-    else:
+    if wingman:
         configpath = get_path()+"no_wingman.conf"
         config = ["-c", configpath]
     print(get_current_time(),"Selected config: ",config)
