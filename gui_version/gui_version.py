@@ -137,7 +137,7 @@ def reprint():
                 
 # Check for EI
 print(get_current_time(), "Checking for EI folder....")
-if not os.path.isdir("EI"):
+while not os.path.isdir("EI"):
     print(get_current_time(),"EI is missing, downloading it")
     query = requests.get(EIQueryURL).json()
     print("Version: ",query["html_url"])
