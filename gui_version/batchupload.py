@@ -112,7 +112,6 @@ def upload(log):
     global counter
     linux = ["-p"]
     configpath = get_path()+"wingman.conf"
-    print(configpath)
     config = ["-c", configpath]
     args = linux + config + log
     start_mono_app("EI/GuildWars2EliteInsights.exe",args)
@@ -127,6 +126,11 @@ def upload(log):
             print(get_current_time(),"Batchupload:",name,dps_link.replace("\n",""))
         if "Wingman: UploadProcessed successful" in line:
             print(get_current_time(),"Batchupload:",name,line.replace("\n",""))
+            with counter_lock:
+                counter += 1
+        if "Completed for killed wvw" in line:
+            print(get_current_time(),"Batchupload:",name,line.replace("\n",""))
+            print(get_current_time(),"Skipped because Wingman does not support WvW logs")
             with counter_lock:
                 counter += 1
     write_log(log[0])

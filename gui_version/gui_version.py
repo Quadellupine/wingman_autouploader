@@ -206,8 +206,8 @@ seen_files = []
 # List of ALL logs that have been uploaded. Not necessarily all logs currently shown in the GUI
 link_collection = []
 # These are for debugging if needed
-#result_queue.put((True, "https://dps.report/NxAB-20240320-215554_matt", 0))
-#result_queue.put((False, "_trio_wipe", 0))
+result_queue.put((True, "https://dps.report/NxAB-20240320-215554_matt", 0))
+result_queue.put((False, "_trio_wipe", 0))
 try:
     while True:
         time.sleep(0.05)

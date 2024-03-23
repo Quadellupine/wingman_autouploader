@@ -28,7 +28,7 @@ def start_mono_app(app_path, app_arguments):
     else:
         try:
             # Use subprocess to start the Mono app with arguments
-            subprocess.run(['mono', app_path] + app_arguments, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(['mono', app_path] + app_arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except subprocess.CalledProcessError as e:
             print(f"Error starting Mono app: {e}")
         except FileNotFoundError:
