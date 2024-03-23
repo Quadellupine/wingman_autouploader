@@ -10,7 +10,7 @@ import pyperclip
 import configparser
 import queue
 from batchupload import batch_upload_window
-from utils import write_log, get_current_time, start_mono_app, get_info_from_json, get_wingman_percentile, get_path, check_wingman_conf
+from utils import write_log, get_current_time, start_mono_app, get_info_from_json, get_path, check_wingman_conf
 import wget
 import zipfile
 
@@ -121,14 +121,11 @@ def clear_table():
     window["table"].update(values=data)
 # Wow binary tables actually being useful for once
 def reprint():
-    print(get_current_time(),"Reprint requested, trying to fetch percentiles again...")
+    print(get_current_time(),"Reprint requested...")
     clear_table()
     for link in link_collection:
         if link[0] or showwipes:
             if not (is_shitlog(link[1]) and filter_shitlogs):
-                percentile = get_wingman_percentile(link[1])
-                if percentile == None:
-                    percentile = "..."
                 new_entry = [
                 link[2],
                 link[1],
