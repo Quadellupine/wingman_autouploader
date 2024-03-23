@@ -92,6 +92,8 @@ def upload(log,wingman):
             print(get_current_time(),"permalink:",dps_link)
         if "Wingman: UploadProcessed" in line:
             print(get_current_time(),line.replace("\n",""))
+        if "Completed for killed wvw" in line:
+            print(get_current_time(),line.replace("\n",""))
     duration, success_value = get_info_from_json(dps_link)
     result_queue.put((success_value, dps_link, duration))
     write_log(log)
