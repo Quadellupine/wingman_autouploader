@@ -31,7 +31,7 @@ def intersection(logs, seen):
 
         
 def batch_upload_window(path):
-    layout = [[sg.Text("Choose a folder for batch upload", key="second",font=('Helvetica', 16))],
+    layout = [[sg.Text("Choose a folder for batch upload to wingman", key="second",font=('Helvetica', 16))],
               [[sg.FolderBrowse(key="folder",size=(10,1),initial_folder=path), sg.Text(""),]],
               [sg.Button("Upload!", key="upload",size=(10,1)),
                sg.ProgressBar(max_value=100, orientation='h', size=(20, 20), key='progress')],

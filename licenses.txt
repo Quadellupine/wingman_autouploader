@@ -370,3 +370,9 @@ License for Requests:
       defend, and hold each Contributor harmless for any liability
       incurred by, or claims asserted against, such Contributor by reason
       of your accepting any such warranty or additional liability.
+
+License for wget:
+Public Domain (Public Domain)
+
+License for watchdog:
+Apache Software License (Apache-2.0)

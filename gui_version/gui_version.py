@@ -3,16 +3,17 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 import sys
-import requests
 import os
+import requests
 import PySimpleGUI as sg
 import pyperclip
 import configparser
 import queue
-from batchupload import batch_upload_window
-from utils import write_log, get_current_time, start_mono_app, get_info_from_json, get_path, check_wingman_conf
 import wget
 import zipfile
+from batchupload import batch_upload_window
+from utils import write_log, get_current_time, start_mono_app, get_info_from_json, get_path, check_wingman_conf
+
 
 # Find latest EI release
 EIQueryURL = "https://api.github.com/repos/baaron4/GW2-Elite-Insights-Parser/releases/latest"
@@ -210,8 +211,9 @@ seen_files = []
 # List of ALL logs that have been uploaded. Not necessarily all logs currently shown in the GUI
 link_collection = []
 # These are for debugging if needed
-#result_queue.put((True, "https://dps.report/NxAB-20240320-215554_matt", 0))
-#result_queue.put((False, "_trio_wipe", 0))
+duration, success = get_info_from_json("https://dps.report/NxAB-20240320-215554_matt")
+result_queue.put((success, "https://dps.report/NxAB-20240320-215554_matt", duration))
+result_queue.put((False, "_trio_wipe", 0))
 try:
     while True:
         time.sleep(0.05)
