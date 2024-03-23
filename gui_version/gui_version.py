@@ -134,7 +134,7 @@ def upload(log, wingman):
     args = linux + config + [log]
     start_mono_app("EI/GuildWars2EliteInsights.exe", args)
     ei_log = log.replace(".zevtc", ".log")
-    with open(ei_log) as f:
+    with open(ei_log,encoding='utf-8', errors='ignore') as f:
         lines = f.readlines()
     os.remove(ei_log)
     dps_link = ""
@@ -287,6 +287,7 @@ link_collection = []
 #duration, success = get_info_from_json("https://dps.report/NxAB-20240320-215554_matt")
 #result_queue.put((success, "https://dps.report/NxAB-20240320-215554_matt", duration))
 #result_queue.put((False, "_trio_wipe", 0))
+
 try:
     while True:
         time.sleep(0.05)

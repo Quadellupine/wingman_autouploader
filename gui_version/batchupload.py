@@ -116,7 +116,7 @@ def upload(log):
     args = linux + config + log
     start_mono_app("EI/GuildWars2EliteInsights.exe",args)
     ei_log = log[0].replace(".zevtc", ".log")
-    with open(ei_log) as f:
+    with open(ei_log, encoding='utf-8', errors='ignore') as f:
         lines = f.readlines()
     os.remove(ei_log) 
     name = threading.current_thread().name.split(" ")[0] + ":"
