@@ -71,7 +71,32 @@ def on_deleted(event):
 def on_modified(event):
     return
 
+def license_popup():
+    # Define the layout
+    layout_popup = [[sg.Text('Visit the project at https://github.com/Quadellupine/wingman_autouploader',font=('Helvetica', 14))],
+            [sg.HorizontalSeparator()],
+            [sg.Text("Licensing:",justification="center",font=('Helvetica', 14))],
+            [sg.Text("Requests: Apache 2.0")],
+            [sg.Text("Pysimplegui (Version 4.x): GNU LESSER GENERAL PUBLIC LICENSE")],
+            [sg.Text("watchdog: Apache 2.0")],
+            [sg.Text("wget: Public Domain")],
+            [sg.Text("Pyperclip: See licenses.txt on github(link above)")],
+            [sg.HorizontalSeparator()],
+            [sg.Text("This project is published under the Unlicense license!")],
+            [sg.Button('Close')]]
 
+    # Create the window
+    window = sg.Window('Licensing and Help', layout_popup)
+
+    # Event loop
+    while True:
+        event, values = window.read()
+        if event == sg.WINDOW_CLOSED or event == 'Close':
+            break
+
+    # Close the window
+    window.close()
+    
 def on_moved(event):
     historicalSize = -1
     if event.dest_path not in seen_files and (event.dest_path.endswith(".zevtc")):
@@ -207,7 +232,7 @@ checkbox_two = [
 ]
 batch_upload = [
     sg.Button("Batch Upload", key="batch", size=(13, 1)),
-    sg.Button("Refresh(debug)", key="refresh", size=(13, 1)),
+    sg.Button("About", key="about", size=(13, 1)),
 ]
 
 layout = [
@@ -259,9 +284,9 @@ seen_files = []
 # List of ALL logs that have been uploaded. Not necessarily all logs currently shown in the GUI
 link_collection = []
 # These are for debugging if needed
-duration, success = get_info_from_json("https://dps.report/NxAB-20240320-215554_matt")
-result_queue.put((success, "https://dps.report/NxAB-20240320-215554_matt", duration))
-result_queue.put((False, "_trio_wipe", 0))
+#duration, success = get_info_from_json("https://dps.report/NxAB-20240320-215554_matt")
+#result_queue.put((success, "https://dps.report/NxAB-20240320-215554_matt", duration))
+#result_queue.put((False, "_trio_wipe", 0))
 try:
     while True:
         time.sleep(0.05)
@@ -281,8 +306,8 @@ try:
                 config.write(configfile)
             break
         # Open additional Window to start a batch upload, handled in additional python file
-        elif event == "refresh":
-            reprint()
+        elif event == "about":
+            license_popup()
         elif event == "batch":
             batch_upload_window(logpath)
         elif "+CLICKED+" in event:
