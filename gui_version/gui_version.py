@@ -10,7 +10,7 @@ import pyperclip
 import configparser
 import queue
 from batchupload import batch_upload_window
-from utils import write_log, get_current_time, start_mono_app, get_info_from_json, get_wingman_percentile, get_path
+from utils import write_log, get_current_time, start_mono_app, get_info_from_json, get_wingman_percentile, get_path, check_wingman_conf
 import wget
 import zipfile
 
@@ -137,6 +137,7 @@ def reprint():
                 window["table"].update(values=data)
                 
 # Check for EI
+print(get_current_time(), "Checking for EI folder....")
 if not os.path.isdir("EI"):
     print(get_current_time(),"EI is missing, downloading it")
     query = requests.get(EIQueryURL).json()
@@ -147,6 +148,8 @@ if not os.path.isdir("EI"):
     with zipfile.ZipFile("EI.zip", 'r') as zip_ref:
         zip_ref.extractall("EI")
     os.remove("EI.zip")
+# Check for EI configs
+check_wingman_conf()
     
 # Begin the actual PROGRAM
 # ----------------  Create main Layout  ----------------
@@ -206,8 +209,8 @@ seen_files = []
 # List of ALL logs that have been uploaded. Not necessarily all logs currently shown in the GUI
 link_collection = []
 # These are for debugging if needed
-result_queue.put((True, "https://dps.report/NxAB-20240320-215554_matt", 0))
-result_queue.put((False, "_trio_wipe", 0))
+#result_queue.put((True, "https://dps.report/NxAB-20240320-215554_matt", 0))
+#result_queue.put((False, "_trio_wipe", 0))
 try:
     while True:
         time.sleep(0.05)

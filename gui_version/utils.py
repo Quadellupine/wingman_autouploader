@@ -67,3 +67,36 @@ def get_path():
     path = os.path.abspath(__file__)
     path = path.rstrip(os.path.basename(__file__))
     return path
+def check_wingman_conf():
+    print(get_current_time(),"Checking for EI config files...")
+    # Block for wingman.conf
+    wingman_conf = "SaveOutHTML=false\nUploadToDPSReports=true\nUploadToWingman=true\n"
+    file = get_path()+"wingman.conf"
+    if os.path.isfile(file):
+        print(get_current_time(),"wingman.conf found. No action needed.")
+    else:
+        print(get_current_time(),"wingman.conf missing. Generating...")
+        f = open(file, "x")
+        f.write(wingman_conf)
+        
+        
+    # Block for no_wingman.conf
+    wingman_conf = "SaveOutHTML=false\nUploadToDPSReports=true\nUploadToWingman=false"
+    file = get_path()+"no_wingman.conf"
+    if os.path.isfile(file):
+        print(get_current_time(),"no_wingman.conf found. No action needed.")
+    else:
+        print(get_current_time(),"no_wingman.conf missing. Generating...")
+        f = open(file, "x")
+        f.write(wingman_conf)
+        
+    
+    # Block for batch.conf
+    wingman_conf = "SaveOutHTML=false\nUploadToDPSReports=false\nUploadToWingman=true"
+    file = get_path()+"batch.conf"
+    if os.path.isfile(file):
+        print(get_current_time(),"batch.conf found. No action needed.")
+    else:
+        print(get_current_time(),"batch.conf missing. Generating...")
+        f = open(file, "x")
+        f.write(wingman_conf)
