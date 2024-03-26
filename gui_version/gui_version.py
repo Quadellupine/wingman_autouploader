@@ -148,6 +148,10 @@ def upload(log, wingman):
         if "Completed for killed wvw" in line:
             print(get_current_time(), line.replace("\n", ""))
     duration, success_value = get_info_from_json(dps_link)
+    # Restart if upload fails?? 
+    if not wingman and dps_link == None:
+        upload(log, wingman)
+        return
     result_queue.put((success_value, dps_link, duration))
     write_log(log)
 
