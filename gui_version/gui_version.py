@@ -150,6 +150,7 @@ def upload(log, wingman):
     print("dps link:",dps_link)
     # Restart if upload fails?? 
     if not wingman and dps_link == "":
+        print(get_current_time(),"Upload failed, retrying")
         upload(log, wingman)
         return
     duration, success_value = get_info_from_json(dps_link)    
